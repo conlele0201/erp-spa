@@ -1,5 +1,7 @@
+import React, { useState } from "react";
+
 export default function Home() {
-  const [activeMenu, setActiveMenu] = React.useState("Dashboard");
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
 
   const menuItems = [
     "Dashboard",
@@ -10,6 +12,7 @@ export default function Home() {
     "POS",
     "CSKH",
     "Báo cáo",
+    "Hệ thống",
   ];
 
   return (
@@ -17,24 +20,28 @@ export default function Home() {
       {/* SIDEBAR */}
       <div
         style={{
-          width: "300px",
-          background: "#f9dce6",
-          padding: "0",
+          width: "260px",
+          background: "#ffffff",
+          borderRight: "1px solid #e5e7eb",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          borderRight: "1px solid #eee",
-          boxSizing: "border-box",
+          height: "100vh",
         }}
       >
         {/* LOGO */}
-        <div style={{ padding: "30px 0" }}>
+        <div
+          style={{
+            padding: "25px 25px 15px 25px",
+            textAlign: "center",
+            boxSizing: "border-box",
+          }}
+        >
           <div
             style={{
-              width: "120px",
-              height: "120px",
-              background: "#e8a8c0",
-              borderRadius: "10px",
+              width: "100px",
+              height: "100px",
+              background: "#f4c7d9",
+              borderRadius: "12px",
               margin: "0 auto",
             }}
           ></div>
@@ -42,9 +49,7 @@ export default function Home() {
             style={{
               marginTop: "10px",
               fontWeight: "600",
-              textAlign: "center",
-              fontSize: "16px",
-              color: "#333",
+              color: "#444",
             }}
           >
             SPA LOGO
@@ -52,54 +57,34 @@ export default function Home() {
         </div>
 
         {/* MENU */}
-        <nav style={{ width: "100%", padding: 0, marginTop: "10px" }}>
-          {menuItems.map((label) => {
-            const isActive = activeMenu === label;
-            return (
-              <div
-                key={label}
-                onClick={() => setActiveMenu(label)}
-                style={{
-                  width: "100%",
-                  padding: "15px 25px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  boxSizing: "border-box",
-                  background: isActive ? "#e8a8c0" : "transparent",
-                  color: "#333",
-                  transition: "0.15s",
-                }}
-                onMouseOver={(e) => {
-                  if (!isActive) e.currentTarget.style.background = "#f4c7d9";
-                }}
-                onMouseOut={(e) => {
-                  if (!isActive) e.currentTarget.style.background =
-                    "transparent";
-                }}
-              >
-                {label}
-              </div>
-            );
-          })}
+        <nav style={{ flex: 1, padding: 0, margin: 0 }}>
+          {menuItems.map((label) => (
+            <MenuItem
+              key={label}
+              label={label}
+              activeMenu={activeMenu}
+              setActiveMenu={setActiveMenu}
+            />
+          ))}
         </nav>
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ flex: 1, background: "#f7f7f7", overflow: "auto" }}>
+      <div style={{ flex: 1, background: "#f7f7f8", overflow: "auto" }}>
         {/* HEADER */}
         <div
           style={{
-            background: "#fff",
+            background: "#ffffff",
             padding: "20px 30px",
-            fontSize: "28px",
+            fontSize: "24px",
             fontWeight: "700",
-            borderBottom: "1px solid #eee",
+            borderBottom: "1px solid #ececec",
           }}
         >
           ERP SPA Dashboard
         </div>
 
-        {/* CONTENT BODY */}
+        {/* CONTENT */}
         <div style={{ padding: "30px" }}>
           <h2 style={{ marginBottom: "10px" }}>Welcome to ERP SPA</h2>
           <p style={{ marginBottom: "30px", color: "#666" }}>
@@ -107,63 +92,58 @@ export default function Home() {
             spa.
           </p>
 
-          {/* KPI ROW */}
-          <div
-            style={{
-              display: "flex",
-              gap: "20px",
-            }}
-          >
-            {/* Widget */}
-            <div
-              style={{
-                background: "#fff",
-                flex: 1,
-                padding: "25px",
-                borderRadius: "12px",
-                border: "1px solid #eee",
-              }}
-            >
-              <p style={{ color: "#666", marginBottom: "10px" }}>
-                Khách hôm nay
-              </p>
-              <h2 style={{ fontSize: "28px", fontWeight: "700" }}>24</h2>
-            </div>
-
-            <div
-              style={{
-                background: "#fff",
-                flex: 1,
-                padding: "25px",
-                borderRadius: "12px",
-                border: "1px solid #eee",
-              }}
-            >
-              <p style={{ color: "#666", marginBottom: "10px" }}>
-                Doanh thu hôm nay
-              </p>
-              <h2 style={{ fontSize: "28px", fontWeight: "700" }}>
-                12,500,000đ
-              </h2>
-            </div>
-
-            <div
-              style={{
-                background: "#fff",
-                flex: 1,
-                padding: "25px",
-                borderRadius: "12px",
-                border: "1px solid #eee",
-              }}
-            >
-              <p style={{ color: "#666", marginBottom: "10px" }}>
-                Lịch hẹn sắp tới
-              </p>
-              <h2 style={{ fontSize: "28px", fontWeight: "700" }}>8</h2>
-            </div>
+          <div style={{ display: "flex", gap: "20px" }}>
+            {kpiCard("Khách hôm nay", "24")}
+            {kpiCard("Doanh thu hôm nay", "12,500,000đ")}
+            {kpiCard("Lịch hẹn sắp tới", "8")}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function MenuItem({ label, activeMenu, setActiveMenu }) {
+  const isActive = activeMenu === label;
+
+  return (
+    <div
+      onClick={() => setActiveMenu(label)}
+      style={{
+        width: "100%",                // tràn full ngang sidebar
+        boxSizing: "border-box",
+        padding: "14px 25px",
+        fontWeight: "600",
+        cursor: "pointer",
+        background: isActive ? "#e8a8c0" : "transparent",
+        color: "#333",
+        transition: "0.2s",
+      }}
+      onMouseOver={(e) => {
+        if (!isActive) e.currentTarget.style.background = "#f4c7d9";
+      }}
+      onMouseOut={(e) => {
+        if (!isActive) e.currentTarget.style.background = "transparent";
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function kpiCard(title, value) {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        padding: "20px",
+        borderRadius: "12px",
+        border: "1px solid #e5e7eb",
+        minWidth: "220px",
+      }}
+    >
+      <p style={{ margin: 0, color: "#777" }}>{title}</p>
+      <h2 style={{ marginTop: "8px", fontSize: "22px" }}>{value}</h2>
     </div>
   );
 }
