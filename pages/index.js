@@ -2,16 +2,17 @@ export default function Home() {
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "Arial" }}>
 
-      {/* MENU TRÁI FULL HỒNG PASTEL */}
+      {/* MENU TRÁI – FULL HỒNG ĐẬM */}
       <aside
         style={{
           width: "260px",
-          background: "#f8e9ef", // full pastel pink
+          background: "#f4c7d9", // Hồng đậm hơn
           padding: "25px",
           display: "flex",
           flexDirection: "column",
           gap: "30px",
-          borderRight: "1px solid #e3cdd7",
+          borderRight: "1px solid #e3b7c8",
+          height: "100%",
         }}
       >
         {/* LOGO */}
@@ -20,18 +21,18 @@ export default function Home() {
             style={{
               width: "100px",
               height: "100px",
-              background: "#f2d5df",
+              background: "#f1bbcd", // nền logo hồng đậm
               borderRadius: "14px",
               margin: "0 auto",
             }}
           ></div>
-          <p style={{ marginTop: "10px", fontWeight: "600", color: "#444" }}>
+          <p style={{ marginTop: "12px", fontWeight: "700", color: "#333" }}>
             SPA LOGO
           </p>
         </div>
 
-        {/* MENU ITEMS */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        {/* MENU */}
+        <nav style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           {menuItem("Dashboard")}
           {menuItem("Khách hàng")}
           {menuItem("Lịch hẹn")}
@@ -77,7 +78,7 @@ export default function Home() {
             Welcome to ERP SPA
           </h3>
 
-          <p style={{ marginTop: "10px", color: "#555", lineHeight: "1.6" }}>
+          <p style={{ marginTop: "10px", color: "#555" }}>
             Trang chủ hiển thị các widget, KPI, thông báo và báo cáo nhanh của spa.
           </p>
 
@@ -93,20 +94,21 @@ export default function Home() {
   );
 }
 
-/* STYLE CHO MENU ITEM ĐƠN GIẢN + SANG */
+/* MENU ITEM – HOVER + ACTIVE HỒNG ĐẬM */
 function menuItem(label) {
   return (
     <div
       style={{
-        padding: "12px 10px",
+        padding: "12px 12px",
         fontWeight: "600",
         color: "#333",
-        cursor: "pointer",
         borderRadius: "8px",
+        cursor: "pointer",
         transition: "0.25s",
       }}
-      onMouseOver={(e) => (e.currentTarget.style.background = "#efd6de")}
+      onMouseOver={(e) => (e.currentTarget.style.background = "#e8a8c0")}
       onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
+      onMouseDown={(e) => (e.currentTarget.style.background = "#dd8eac")}
     >
       {label}
     </div>
