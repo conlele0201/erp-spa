@@ -1,33 +1,32 @@
+// pages/khach-hang/index.js
+import React, { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
+
 export default function KhachHangPage() {
-  const customers = [
-    {
-      name: "Ngọc Anh",
-      phone: "0901234567",
-      gender: "Nữ",
-      tag: "VIP",
-      totalSpent: "12,500,000đ",
-      visits: 8,
-      lastVisit: "02/12/2025",
-    },
-    {
-      name: "Minh Khoa",
-      phone: "0938765432",
-      gender: "Nam",
-      tag: "Khách mới",
-      totalSpent: "4,200,000đ",
-      visits: 3,
-      lastVisit: "28/11/2025",
-    },
-    {
-      name: "Thu Hà",
-      phone: "0912345789",
-      gender: "Nữ",
-      tag: "Khách quen",
-      totalSpent: "7,800,000đ",
-      visits: 5,
-      lastVisit: "25/11/2025",
-    },
-  ];
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Tải dữ liệu thật từ Supabase
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  const loadCustomers = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("customers")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error) setCustomers(data || []);
+
+    setLoading(false);
+  };
+
+  const goTo = (path) => {
+    window.location.href = path;
+  };
 
   return (
     <div
@@ -35,16 +34,15 @@ export default function KhachHangPage() {
         display: "flex",
         minHeight: "100vh",
         fontFamily: "Arial, sans-serif",
-        background: "#f7f7f9",
+        background: "#f9f3f6",
       }}
     >
-      {/* SIDEBAR – giống hệt Dashboard nhưng active Khách hàng */}
+      {/* SIDEBAR */}
       <div
         style={{
           width: "260px",
           background: "#F9D9E4",
           padding: "24px 20px",
-          boxSizing: "border-box",
         }}
       >
         <div
@@ -56,11 +54,12 @@ export default function KhachHangPage() {
             margin: "0 auto",
           }}
         ></div>
+
         <p
           style={{
             textAlign: "center",
             marginTop: "10px",
-            fontWeight: 600,
+            fontWeight: "600",
           }}
         >
           SPA LOGO
@@ -86,7 +85,7 @@ export default function KhachHangPage() {
                 borderRadius: "8px",
                 marginBottom: "6px",
                 textDecoration: "none",
-                fontWeight: 600,
+                fontWeight: "600",
                 color: item.label === "Khách hàng" ? "#000" : "#333",
                 background:
                   item.label === "Khách hàng" ? "#EFA6C3" : "transparent",
@@ -98,67 +97,12 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* MAIN CONTENT – Khách hàng */}
+      {/* MAIN AREA */}
       <div style={{ flex: 1, padding: "24px 32px" }}>
-        <h1
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            marginBottom: "20px",
-          }}
-        >
+        <h1 style={{ fontSize: "28px", fontWeight: "700", marginBottom: "20px" }}>
           Quản lý khách hàng
         </h1>
 
-        {/* Thanh tìm kiếm + filter + nút thêm */}
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            marginBottom: "20px",
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Tìm theo tên hoặc số điện thoại…"
-            style={{
-              flex: 1,
-              minWidth: "240px",
-              padding: "10px 12px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-            }}
-          />
-
-          <select
-            style={{
-              padding: "10px 12px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-            }}
-          >
-            <option>Tất cả</option>
-            <option>Nam</option>
-            <option>Nữ</option>
-          </select>
-
-          <button
-            style={{
-              padding: "10px 16px",
-              borderRadius: "8px",
-              border: "none",
-              background: "#e88aaa",
-              color: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            + Thêm khách hàng
-          </button>
-        </div>
-
-        {/* Bảng khách hàng */}
         <div
           style={{
             background: "#fff",
@@ -167,63 +111,98 @@ export default function KhachHangPage() {
             padding: "20px",
           }}
         >
-          <table
+          <div
             style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: "14px",
+              marginBottom: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <thead>
-              <tr style={{ background: "#F9D9E4" }}>
-                <th style={th}>Tên khách</th>
-                <th style={th}>Số điện thoại</th>
-                <th style={th}>Giới tính</th>
-                <th style={th}>Tag</th>
-                <th style={th}>Tổng chi tiêu</th>
-                <th style={th}>Lần đến</th>
-                <th style={th}>Gần nhất</th>
-                <th style={th}>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((c, i) => (
-                <tr key={i} style={{ borderBottom: "1px solid #f1f1f1" }}>
-                  <td style={td}>{c.name}</td>
-                  <td style={td}>{c.phone}</td>
-                  <td style={td}>{c.gender}</td>
-                  <td style={td}>
-                    <span
-                      style={{
-                        background: "#F3C1D8",
-                        padding: "3px 8px",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                      }}
-                    >
-                      {c.tag}
-                    </span>
-                  </td>
-                  <td style={td}>{c.totalSpent}</td>
-                  <td style={td}>{c.visits}</td>
-                  <td style={td}>{c.lastVisit}</td>
-                  <td style={td}>
-                    <button
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: "6px",
-                        border: "1px solid #ddd",
-                        cursor: "pointer",
-                        background: "#fff",
-                      }}
-                    >
-                      Xem
-                    </button>
-                  </td>
+            <strong>Danh sách khách hàng</strong>
+
+            <button
+              style={{
+                padding: "10px 16px",
+                background: "#e88aaa",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onClick={() => alert("Thêm khách sẽ làm bước tiếp")}
+            >
+              + Thêm khách hàng
+            </button>
+          </div>
+
+          {loading ? (
+            <p>Đang tải dữ liệu...</p>
+          ) : customers.length === 0 ? (
+            <p>Chưa có khách hàng nào.</p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#F9D9E4" }}>
+                  <th style={th}>Tên khách</th>
+                  <th style={th}>Số điện thoại</th>
+                  <th style={th}>Giới tính</th>
+                  <th style={th}>Tag</th>
+                  <th style={th}>Tổng chi tiêu</th>
+                  <th style={th}>Lần đến</th>
+                  <th style={th}>Gần nhất</th>
+                  <th style={th}>Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {customers.map((c) => (
+                  <tr key={c.id} style={{ borderBottom: "1px solid #eee" }}>
+                    <td style={td}>{c.name}</td>
+                    <td style={td}>{c.phone}</td>
+                    <td style={td}>{c.gender}</td>
+                    <td style={td}>
+                      {c.tag && (
+                        <span
+                          style={{
+                            background: "#F3C1D8",
+                            padding: "4px 10px",
+                            borderRadius: "12px",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {c.tag}
+                        </span>
+                      )}
+                    </td>
+                    <td style={td}>
+                      {(c.total_spent || 0).toLocaleString("vi-VN") + "đ"}
+                    </td>
+                    <td style={td}>{c.visits || 0}</td>
+                    <td style={td}>
+                      {c.last_visit
+                        ? new Date(c.last_visit).toLocaleDateString("vi-VN")
+                        : "-"}
+                    </td>
+                    <td style={td}>
+                      <button
+                        style={{
+                          padding: "6px 10px",
+                          background: "#fff",
+                          borderRadius: "6px",
+                          border: "1px solid #aaa",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => alert(`Xem khách: ${c.name}`)}
+                      >
+                        Xem
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
@@ -231,10 +210,13 @@ export default function KhachHangPage() {
 }
 
 const th = {
-  padding: "10px",
   textAlign: "left",
+  padding: "12px",
+  fontWeight: "600",
+  fontSize: "14px",
 };
 
 const td = {
-  padding: "10px",
+  padding: "12px",
+  fontSize: "14px",
 };
