@@ -1,258 +1,252 @@
 // pages/khach-hang/index.js
-
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 
+// Mock data dùng khi:
+// - Mới khởi tạo dự án
+// - Hoặc Supabase chưa cấu hình / chưa có dữ liệu
+const MOCK_CUSTOMERS = [
+  {
+    id: 1,
+    name: "Ngọc Anh",
+    phone: "0901234567",
+    gender: "Nữ",
+    tag: "VIP",
+    totalSpend: "12,500,000đ",
+    visits: 8,
+    lastVisit: "02/12/2025",
+  },
+  {
+    id: 2,
+    name: "Minh Khoa",
+    phone: "0938765432",
+    gender: "Nam",
+    tag: "Khách mới",
+    totalSpend: "4,200,000đ",
+    visits: 3,
+    lastVisit: "28/11/2025",
+  },
+  {
+    id: 3,
+    name: "Thu Hà",
+    phone: "0912345789",
+    gender: "Nữ",
+    tag: "Khách quen",
+    totalSpend: "7,800,000đ",
+    visits: 5,
+    lastVisit: "25/11/2025",
+  },
+];
+
 export default function KhachHangPage() {
-  const [customers, setCustomers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [filterTag, setFilterTag] = useState("Tất cả");
+  const [customers, setCustomers] = useState(MOCK_CUSTOMERS);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  // Lấy dữ liệu từ bảng "customers" trên Supabase
   useEffect(() => {
-    async function fetchCustomers() {
-      setLoading(true);
-      setError("");
-
-      const { data, error } = await supabase
-        .from("customers")
-        .select(
-          `
-          id,
-          name,
-          phone,
-          gender,
-          tag,
-          total_spent,
-          visits,
-          last_visit
-        `
-        )
-        .order("last_visit", { ascending: false });
-
-      if (error) {
-        console.error("Lỗi lấy dữ liệu khách hàng:", error);
-        setError("Không tải được dữ liệu khách hàng.");
-        setCustomers([]);
-      } else {
-        setCustomers(data || []);
-      }
-
+    // Nếu chưa có supabase client (thiếu env) thì dùng luôn MOCK_CUSTOMERS
+    if (!supabase) {
+      console.warn("Supabase client không khả dụng, dùng mock data.");
       setLoading(false);
+      return;
+    }
+
+    async function fetchCustomers() {
+      try {
+        const { data, error } = await supabase
+          .from("customers")
+          .select("*")
+          .order("last_visit", { ascending: false });
+
+        if (error) {
+          console.error("Supabase error:", error.message);
+          setLoading(false);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const mapped = data.map((row) => ({
+            id: row.id,
+            name: row.name,
+            phone: row.phone,
+            gender: row.gender,
+            tag: row.tag,
+            totalSpend: row.total_spend, // hoặc format lại nếu cần
+            visits: row.total_visits,
+            lastVisit: row.last_visit,
+          }));
+          setCustomers(mapped);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Unexpected error when fetching customers:", err);
+        setLoading(false);
+      }
     }
 
     fetchCustomers();
   }, []);
 
-  // Lọc + tìm kiếm trên data đã lấy
-  const filteredCustomers = customers.filter((c) => {
-    const matchSearch =
-      c.name?.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone?.includes(search);
-    const matchTag = filterTag === "Tất cả" || c.tag === filterTag;
-    return matchSearch && matchTag;
-  });
-
   return (
-    <div style={styles.pageContainer}>
-      <h1 style={styles.title}>Quản lý khách hàng</h1>
+    <div style={{ padding: "24px 40px" }}>
+      <h1
+        style={{
+          fontSize: "32px",
+          fontWeight: 700,
+          marginBottom: "24px",
+        }}
+      >
+        Quản lý khách hàng
+      </h1>
 
-      {/* Thanh tìm kiếm + Filter + nút thêm */}
-      <div style={styles.toolbar}>
+      {/* Thanh search + filter + button thêm khách */}
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          marginBottom: "24px",
+          alignItems: "center",
+        }}
+      >
         <input
           type="text"
           placeholder="Tìm theo tên hoặc số điện thoại..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={styles.searchInput}
+          style={{
+            flex: 1,
+            padding: "10px 14px",
+            borderRadius: "999px",
+            border: "1px solid #e5e7eb",
+            outline: "none",
+            fontSize: "14px",
+          }}
         />
-
         <select
-          value={filterTag}
-          onChange={(e) => setFilterTag(e.target.value)}
-          style={styles.select}
+          style={{
+            width: "140px",
+            padding: "10px 14px",
+            borderRadius: "999px",
+            border: "1px solid #e5e7eb",
+            fontSize: "14px",
+          }}
         >
-          <option value="Tất cả">Tất cả</option>
-          <option value="VIP">VIP</option>
-          <option value="Khách mới">Khách mới</option>
-          <option value="Khách quen">Khách quen</option>
+          <option>Tất cả</option>
+          <option>VIP</option>
+          <option>Khách mới</option>
+          <option>Khách quen</option>
         </select>
-
         <button
-          type="button"
-          style={styles.primaryButton}
-          onClick={() => {
-            // Sau này mình sẽ mở modal "Thêm khách hàng" ở đây
-            alert("Chức năng thêm khách hàng sẽ làm ở bước sau.");
+          style={{
+            padding: "10px 18px",
+            borderRadius: "999px",
+            border: "none",
+            backgroundColor: "#ec4899",
+            color: "#fff",
+            fontWeight: 600,
+            cursor: "pointer",
           }}
         >
           + Thêm khách hàng
         </button>
       </div>
 
-      {/* Thông báo loading / lỗi */}
-      {loading && <p style={styles.infoText}>Đang tải dữ liệu khách hàng…</p>}
-      {!loading && error && (
-        <p style={{ ...styles.infoText, color: "#E53935" }}>{error}</p>
-      )}
-
       {/* Bảng khách hàng */}
-      {!loading && !error && (
-        <div style={styles.tableWrapper}>
-          <table style={styles.table}>
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "24px",
+          padding: "20px 24px",
+          boxShadow: "0 10px 40px rgba(15, 23, 42, 0.05)",
+        }}
+      >
+        {loading ? (
+          <p>Đang tải dữ liệu khách hàng...</p>
+        ) : (
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: "14px",
+            }}
+          >
             <thead>
-              <tr>
-                <th style={styles.th}>Tên khách</th>
-                <th style={styles.th}>Số điện thoại</th>
-                <th style={styles.th}>Giới tính</th>
-                <th style={styles.th}>Tag</th>
-                <th style={styles.th}>Tổng chi tiêu</th>
-                <th style={styles.th}>Lần đến</th>
-                <th style={styles.th}>Gần nhất</th>
-                <th style={styles.th}>Thao tác</th>
+              <tr
+                style={{
+                  backgroundColor: "#ffe4ef",
+                  textAlign: "left",
+                  height: "44px",
+                }}
+              >
+                <th style={{ padding: "0 16px", borderRadius: "12px 0 0 12px" }}>
+                  Tên khách
+                </th>
+                <th style={{ padding: "0 16px" }}>Số điện thoại</th>
+                <th style={{ padding: "0 16px" }}>Giới tính</th>
+                <th style={{ padding: "0 16px" }}>Tag</th>
+                <th style={{ padding: "0 16px" }}>Tổng chi tiêu</th>
+                <th style={{ padding: "0 16px" }}>Lần đến</th>
+                <th style={{ padding: "0 16px" }}>Gần nhất</th>
+                <th
+                  style={{
+                    padding: "0 16px",
+                    borderRadius: "0 12px 12px 0",
+                    textAlign: "center",
+                  }}
+                >
+                  Thao tác
+                </th>
               </tr>
             </thead>
             <tbody>
-              {filteredCustomers.length === 0 ? (
-                <tr>
-                  <td style={styles.emptyCell} colSpan={8}>
-                    Không có khách hàng phù hợp.
+              {customers.map((customer, index) => (
+                <tr
+                  key={customer.id || index}
+                  style={{
+                    borderBottom: "1px solid #f1f5f9",
+                    height: "56px",
+                  }}
+                >
+                  <td style={{ padding: "0 16px" }}>{customer.name}</td>
+                  <td style={{ padding: "0 16px" }}>{customer.phone}</td>
+                  <td style={{ padding: "0 16px" }}>{customer.gender}</td>
+                  <td style={{ padding: "0 16px" }}>
+                    <span
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: "999px",
+                        backgroundColor: "#ffe4ef",
+                        color: "#be185d",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {customer.tag}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0 16px" }}>{customer.totalSpend}</td>
+                  <td style={{ padding: "0 16px" }}>{customer.visits}</td>
+                  <td style={{ padding: "0 16px" }}>
+                    {customer.lastVisit || "-"}
+                  </td>
+                  <td style={{ padding: "0 16px", textAlign: "center" }}>
+                    <button
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: "999px",
+                        border: "1px solid #e5e7eb",
+                        backgroundColor: "#ffffff",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                      }}
+                    >
+                      Xem
+                    </button>
                   </td>
                 </tr>
-              ) : (
-                filteredCustomers.map((c) => (
-                  <tr key={c.id}>
-                    <td style={styles.td}>{c.name}</td>
-                    <td style={styles.td}>{c.phone}</td>
-                    <td style={styles.td}>{c.gender}</td>
-                    <td style={styles.td}>
-                      <span style={styles.tagBadge}>{c.tag}</span>
-                    </td>
-                    <td style={styles.td}>
-                      {c.total_spent != null
-                        ? c.total_spent.toLocaleString("vi-VN") + "đ"
-                        : "-"}
-                    </td>
-                    <td style={styles.td}>{c.visits ?? "-"}</td>
-                    <td style={styles.td}>{c.last_visit ?? "-"}</td>
-                    <td style={styles.td}>
-                      <button
-                        type="button"
-                        style={styles.secondaryButton}
-                        onClick={() => {
-                          // Sau này sẽ mở trang / modal chi tiết khách
-                          alert(`Xem chi tiết khách: ${c.name}`);
-                        }}
-                      >
-                        Xem
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
-
-/** CSS inline đơn giản, giữ đúng style spa hồng */
-const styles = {
-  pageContainer: {
-    padding: "32px 40px",
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-  },
-  title: {
-    fontSize: "28px",
-    fontWeight: 700,
-    marginBottom: "24px",
-  },
-  toolbar: {
-    display: "flex",
-    gap: "12px",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  searchInput: {
-    flex: 1,
-    padding: "10px 14px",
-    borderRadius: "999px",
-    border: "1px solid #e0e0e0",
-    outline: "none",
-    fontSize: "14px",
-  },
-  select: {
-    padding: "10px 14px",
-    borderRadius: "999px",
-    border: "1px solid #e0e0e0",
-    backgroundColor: "#fff",
-    fontSize: "14px",
-  },
-  primaryButton: {
-    padding: "10px 18px",
-    borderRadius: "999px",
-    border: "none",
-    backgroundColor: "#f48fb1",
-    color: "#fff",
-    fontWeight: 600,
-    cursor: "pointer",
-    fontSize: "14px",
-    whiteSpace: "nowrap",
-  },
-  tableWrapper: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
-    padding: "8px 0",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    fontSize: "14px",
-  },
-  th: {
-    textAlign: "left",
-    padding: "12px 20px",
-    fontWeight: 600,
-    backgroundColor: "#ffe4ef",
-    borderBottom: "1px solid #f1f1f1",
-    whiteSpace: "nowrap",
-  },
-  td: {
-    padding: "10px 20px",
-    borderBottom: "1px solid #f7f7f7",
-    verticalAlign: "middle",
-  },
-  emptyCell: {
-    padding: "16px 20px",
-    textAlign: "center",
-    color: "#757575",
-  },
-  tagBadge: {
-    display: "inline-block",
-    padding: "4px 10px",
-    borderRadius: "999px",
-    backgroundColor: "#ffd1e3",
-    color: "#ad1457",
-    fontSize: "12px",
-    fontWeight: 600,
-  },
-  secondaryButton: {
-    padding: "6px 12px",
-    borderRadius: "999px",
-    border: "1px solid #e0e0e0",
-    backgroundColor: "#fff",
-    cursor: "pointer",
-    fontSize: "13px",
-  },
-  infoText: {
-    marginTop: 8,
-    marginBottom: 16,
-    fontSize: 14,
-    color: "#555",
-  },
-};
