@@ -5,28 +5,54 @@ import { supabase } from "../../lib/supabaseClient";
 export default function KhachHangPage() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [filterTag, setFilterTag] = useState("Tất cả");
 
   // Tải dữ liệu thật từ Supabase
   useEffect(() => {
+    const loadCustomers = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("customers")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Lỗi tải khách hàng:", error.message);
+        setCustomers([]);
+      } else {
+        setCustomers(data || []);
+      }
+      setLoading(false);
+    };
+
     loadCustomers();
   }, []);
 
-  const loadCustomers = async () => {
-    setLoading(true);
+  const sidebarItems = [
+    { label: "Dashboard", link: "/" },
+    { label: "Khách hàng", link: "/khach-hang" },
+    { label: "Lịch hẹn", link: "#" },
+    { label: "Liệu trình", link: "#" },
+    { label: "Kho", link: "#" },
+    { label: "POS", link: "#" },
+    { label: "CSKH", link: "#" },
+    { label: "Báo cáo", link: "#" },
+  ];
 
-    const { data, error } = await supabase
-      .from("customers")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const filteredCustomers = customers.filter((c) => {
+    const text = (searchText || "").toLowerCase();
+    const matchText =
+      !text ||
+      c.name?.toLowerCase().includes(text) ||
+      c.phone?.toLowerCase().includes(text);
 
-    if (!error) setCustomers(data || []);
+    const matchTag =
+      filterTag === "Tất cả" ||
+      (c.tag && c.tag.toLowerCase() === filterTag.toLowerCase());
 
-    setLoading(false);
-  };
-
-  const goTo = (path) => {
-    window.location.href = path;
-  };
+    return matchText && matchTag;
+  });
 
   return (
     <div
@@ -66,16 +92,7 @@ export default function KhachHangPage() {
         </p>
 
         <div style={{ marginTop: "30px" }}>
-          {[
-            { label: "Dashboard", link: "/" },
-            { label: "Khách hàng", link: "/khach-hang" },
-            { label: "Lịch hẹn", link: "#" },
-            { label: "Liệu trình", link: "#" },
-            { label: "Kho", link: "#" },
-            { label: "POS", link: "#" },
-            { label: "CSKH", link: "#" },
-            { label: "Báo cáo", link: "#" },
-          ].map((item, idx) => (
+          {sidebarItems.map((item, idx) => (
             <a
               key={idx}
               href={item.link}
@@ -97,50 +114,78 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* MAIN AREA */}
+      {/* MAIN */}
       <div style={{ flex: 1, padding: "24px 32px" }}>
         <h1 style={{ fontSize: "28px", fontWeight: "700", marginBottom: "20px" }}>
           Quản lý khách hàng
         </h1>
+
+        {/* Thanh tìm kiếm + filter + nút thêm */}
+        <div
+          style={{
+            marginBottom: "16px",
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Tìm theo tên hoặc số điện thoại..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{
+              flex: 1,
+              padding: "10px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ddd",
+              outline: "none",
+            }}
+          />
+
+          <select
+            value={filterTag}
+            onChange={(e) => setFilterTag(e.target.value)}
+            style={{
+              padding: "10px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ddd",
+            }}
+          >
+            <option value="Tất cả">Tất cả</option>
+            <option value="VIP">VIP</option>
+            <option value="Khách mới">Khách mới</option>
+            <option value="Khách quen">Khách quen</option>
+          </select>
+
+          <button
+            style={{
+              padding: "10px 16px",
+              background: "#e88aaa",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              cursor: "pointer",
+            }}
+            onClick={() => alert("Form thêm khách sẽ làm ở bước sau")}
+          >
+            + Thêm khách hàng
+          </button>
+        </div>
 
         <div
           style={{
             background: "#fff",
             borderRadius: "12px",
             border: "1px solid #eee",
-            padding: "20px",
+            padding: "0",
           }}
         >
-          <div
-            style={{
-              marginBottom: "20px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <strong>Danh sách khách hàng</strong>
-
-            <button
-              style={{
-                padding: "10px 16px",
-                background: "#e88aaa",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
-              onClick={() => alert("Thêm khách sẽ làm bước tiếp")}
-            >
-              + Thêm khách hàng
-            </button>
-          </div>
-
           {loading ? (
-            <p>Đang tải dữ liệu...</p>
-          ) : customers.length === 0 ? (
-            <p>Chưa có khách hàng nào.</p>
+            <p style={{ padding: "16px" }}>Đang tải dữ liệu...</p>
+          ) : filteredCustomers.length === 0 ? (
+            <p style={{ padding: "16px" }}>Chưa có khách hàng nào.</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -156,7 +201,7 @@ export default function KhachHangPage() {
                 </tr>
               </thead>
               <tbody>
-                {customers.map((c) => (
+                {filteredCustomers.map((c) => (
                   <tr key={c.id} style={{ borderBottom: "1px solid #eee" }}>
                     <td style={td}>{c.name}</td>
                     <td style={td}>{c.phone}</td>
