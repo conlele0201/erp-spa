@@ -2,29 +2,71 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 
+// Data mẫu fallback nếu Supabase lỗi / chưa có dữ liệu
+const mockCustomers = [
+  {
+    id: 1,
+    name: "Ngọc Anh",
+    phone: "0901234567",
+    gender: "Nữ",
+    tag: "VIP",
+    total_spent: 12500000,
+    visits: 8,
+    last_visit: "2025-12-02",
+  },
+  {
+    id: 2,
+    name: "Minh Khoa",
+    phone: "0938765432",
+    gender: "Nam",
+    tag: "Khách mới",
+    total_spent: 4200000,
+    visits: 3,
+    last_visit: "2025-11-28",
+  },
+  {
+    id: 3,
+    name: "Thu Hà",
+    phone: "0912345789",
+    gender: "Nữ",
+    tag: "Khách quen",
+    total_spent: 7800000,
+    visits: 5,
+    last_visit: "2025-11-25",
+  },
+];
+
 export default function KhachHangPage() {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState(mockCustomers);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filterTag, setFilterTag] = useState("Tất cả");
 
-  // Tải dữ liệu thật từ Supabase
+  // Lấy dữ liệu thật từ Supabase
   useEffect(() => {
-    const loadCustomers = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("customers")
-        .select("*")
-        .order("created_at", { ascending: false });
+    async function loadCustomers() {
+      try {
+        const { data, error } = await supabase
+          .from("customers")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Lỗi tải khách hàng:", error.message);
-        setCustomers([]);
-      } else {
-        setCustomers(data || []);
+        if (error) {
+          console.error("Lỗi Supabase:", error.message);
+          setCustomers(mockCustomers);
+        } else if (data && data.length > 0) {
+          setCustomers(data);
+        } else {
+          // Không có dữ liệu thì dùng mock
+          setCustomers(mockCustomers);
+        }
+      } catch (err) {
+        console.error("Lỗi không xác định:", err);
+        setCustomers(mockCustomers);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    };
+    }
 
     loadCustomers();
   }, []);
@@ -40,12 +82,13 @@ export default function KhachHangPage() {
     { label: "Báo cáo", link: "#" },
   ];
 
+  const normalizedSearch = searchText.trim().toLowerCase();
+
   const filteredCustomers = customers.filter((c) => {
-    const text = (searchText || "").toLowerCase();
     const matchText =
-      !text ||
-      c.name?.toLowerCase().includes(text) ||
-      c.phone?.toLowerCase().includes(text);
+      !normalizedSearch ||
+      (c.name && c.name.toLowerCase().includes(normalizedSearch)) ||
+      (c.phone && c.phone.toLowerCase().includes(normalizedSearch));
 
     const matchTag =
       filterTag === "Tất cả" ||
@@ -60,14 +103,14 @@ export default function KhachHangPage() {
         display: "flex",
         minHeight: "100vh",
         fontFamily: "Arial, sans-serif",
-        background: "#f9f3f6",
+        backgroundColor: "#f9f3f6",
       }}
     >
-      {/* SIDEBAR */}
+      {/* SIDEBAR CỐ ĐỊNH */}
       <div
         style={{
           width: "260px",
-          background: "#F9D9E4",
+          backgroundColor: "#F9D9E4",
           padding: "24px 20px",
         }}
       >
@@ -75,7 +118,7 @@ export default function KhachHangPage() {
           style={{
             width: "140px",
             height: "140px",
-            background: "#F3C1D8",
+            backgroundColor: "#F3C1D8",
             borderRadius: "10px",
             margin: "0 auto",
           }}
@@ -92,9 +135,9 @@ export default function KhachHangPage() {
         </p>
 
         <div style={{ marginTop: "30px" }}>
-          {sidebarItems.map((item, idx) => (
+          {sidebarItems.map((item) => (
             <a
-              key={idx}
+              key={item.label}
               href={item.link}
               style={{
                 display: "block",
@@ -104,7 +147,7 @@ export default function KhachHangPage() {
                 textDecoration: "none",
                 fontWeight: "600",
                 color: item.label === "Khách hàng" ? "#000" : "#333",
-                background:
+                backgroundColor:
                   item.label === "Khách hàng" ? "#EFA6C3" : "transparent",
               }}
             >
@@ -114,13 +157,19 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* MAIN */}
+      {/* MAIN CONTENT */}
       <div style={{ flex: 1, padding: "24px 32px" }}>
-        <h1 style={{ fontSize: "28px", fontWeight: "700", marginBottom: "20px" }}>
+        <h1
+          style={{
+            fontSize: "28px",
+            fontWeight: "700",
+            marginBottom: "20px",
+          }}
+        >
           Quản lý khách hàng
         </h1>
 
-        {/* Thanh tìm kiếm + filter + nút thêm */}
+        {/* Tìm kiếm + Lọc + Thêm */}
         <div
           style={{
             marginBottom: "16px",
@@ -161,7 +210,7 @@ export default function KhachHangPage() {
           <button
             style={{
               padding: "10px 16px",
-              background: "#e88aaa",
+              backgroundColor: "#e88aaa",
               color: "#fff",
               border: "none",
               borderRadius: "8px",
@@ -174,12 +223,12 @@ export default function KhachHangPage() {
           </button>
         </div>
 
+        {/* BẢNG KHÁCH HÀNG */}
         <div
           style={{
-            background: "#fff",
+            backgroundColor: "#fff",
             borderRadius: "12px",
             border: "1px solid #eee",
-            padding: "0",
           }}
         >
           {loading ? (
@@ -187,30 +236,36 @@ export default function KhachHangPage() {
           ) : filteredCustomers.length === 0 ? (
             <p style={{ padding: "16px" }}>Chưa có khách hàng nào.</p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "14px",
+              }}
+            >
               <thead>
-                <tr style={{ background: "#F9D9E4" }}>
-                  <th style={th}>Tên khách</th>
-                  <th style={th}>Số điện thoại</th>
-                  <th style={th}>Giới tính</th>
-                  <th style={th}>Tag</th>
-                  <th style={th}>Tổng chi tiêu</th>
-                  <th style={th}>Lần đến</th>
-                  <th style={th}>Gần nhất</th>
-                  <th style={th}>Thao tác</th>
+                <tr style={{ backgroundColor: "#F9D9E4" }}>
+                  <th style={thStyle}>Tên khách</th>
+                  <th style={thStyle}>Số điện thoại</th>
+                  <th style={thStyle}>Giới tính</th>
+                  <th style={thStyle}>Tag</th>
+                  <th style={thStyle}>Tổng chi tiêu</th>
+                  <th style={thStyle}>Lần đến</th>
+                  <th style={thStyle}>Gần nhất</th>
+                  <th style={thStyle}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCustomers.map((c) => (
                   <tr key={c.id} style={{ borderBottom: "1px solid #eee" }}>
-                    <td style={td}>{c.name}</td>
-                    <td style={td}>{c.phone}</td>
-                    <td style={td}>{c.gender}</td>
-                    <td style={td}>
+                    <td style={tdStyle}>{c.name}</td>
+                    <td style={tdStyle}>{c.phone}</td>
+                    <td style={tdStyle}>{c.gender}</td>
+                    <td style={tdStyle}>
                       {c.tag && (
                         <span
                           style={{
-                            background: "#F3C1D8",
+                            backgroundColor: "#F3C1D8",
                             padding: "4px 10px",
                             borderRadius: "12px",
                             fontSize: "12px",
@@ -220,20 +275,20 @@ export default function KhachHangPage() {
                         </span>
                       )}
                     </td>
-                    <td style={td}>
+                    <td style={tdStyle}>
                       {(c.total_spent || 0).toLocaleString("vi-VN") + "đ"}
                     </td>
-                    <td style={td}>{c.visits || 0}</td>
-                    <td style={td}>
+                    <td style={tdStyle}>{c.visits || 0}</td>
+                    <td style={tdStyle}>
                       {c.last_visit
                         ? new Date(c.last_visit).toLocaleDateString("vi-VN")
                         : "-"}
                     </td>
-                    <td style={td}>
+                    <td style={tdStyle}>
                       <button
                         style={{
                           padding: "6px 10px",
-                          background: "#fff",
+                          backgroundColor: "#fff",
                           borderRadius: "6px",
                           border: "1px solid #aaa",
                           cursor: "pointer",
@@ -254,14 +309,12 @@ export default function KhachHangPage() {
   );
 }
 
-const th = {
+const thStyle = {
   textAlign: "left",
   padding: "12px",
-  fontWeight: "600",
-  fontSize: "14px",
+  fontWeight: 600,
 };
 
-const td = {
+const tdStyle = {
   padding: "12px",
-  fontSize: "14px",
 };
