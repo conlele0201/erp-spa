@@ -16,89 +16,59 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "sans-serif" }}>
+    <div style={{ display: "flex", height: "100vh", fontFamily: "Arial" }}>
       {/* SIDEBAR */}
-      <div
-        style={{
-          width: "260px",
-          background: "#ffffff",
-          borderRight: "1px solid #e5e7eb",
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-        }}
-      >
-        {/* LOGO */}
-        <div
-          style={{
-            padding: "25px 25px 15px 25px",
-            textAlign: "center",
-            boxSizing: "border-box",
-          }}
-        >
-          <div
-            style={{
-              width: "100px",
-              height: "100px",
-              background: "#f4c7d9",
-              borderRadius: "12px",
-              margin: "0 auto",
-            }}
-          ></div>
-          <p
-            style={{
-              marginTop: "10px",
-              fontWeight: "600",
-              color: "#444",
-            }}
-          >
-            SPA LOGO
-          </p>
-        </div>
-
-        {/* MENU */}
-        <nav style={{ flex: 1, padding: 0, margin: 0 }}>
-          {menuItems.map((label) => (
-            <MenuItem
-              key={label}
-              label={label}
-              activeMenu={activeMenu}
-              setActiveMenu={setActiveMenu}
-            />
-          ))}
-        </nav>
-      </div>
+      <Sidebar
+        menuItems={menuItems}
+        activeMenu={activeMenu}
+        setActiveMenu={setActiveMenu}
+      />
 
       {/* MAIN CONTENT */}
-      <div style={{ flex: 1, background: "#f7f7f8", overflow: "auto" }}>
-        {/* HEADER */}
+      <MainContent />
+    </div>
+  );
+}
+
+/* ============================
+     SIDEBAR
+============================= */
+function Sidebar({ menuItems, activeMenu, setActiveMenu }) {
+  return (
+    <div
+      style={{
+        width: "260px",
+        background: "#ffffff",
+        borderRight: "1px solid #e5e7eb",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div style={{ padding: "25px", textAlign: "center" }}>
         <div
           style={{
-            background: "#ffffff",
-            padding: "20px 30px",
-            fontSize: "24px",
-            fontWeight: "700",
-            borderBottom: "1px solid #ececec",
+            width: "100px",
+            height: "100px",
+            background: "#f4c7d9",
+            borderRadius: "12px",
+            margin: "0 auto",
           }}
-        >
-          ERP SPA Dashboard
-        </div>
-
-        {/* CONTENT */}
-        <div style={{ padding: "30px" }}>
-          <h2 style={{ marginBottom: "10px" }}>Welcome to ERP SPA</h2>
-          <p style={{ marginBottom: "30px", color: "#666" }}>
-            Trang chủ hiển thị các widget, KPI, thông báo và báo cáo nhanh của
-            spa.
-          </p>
-
-          <div style={{ display: "flex", gap: "20px" }}>
-            {kpiCard("Khách hôm nay", "24")}
-            {kpiCard("Doanh thu hôm nay", "12,500,000đ")}
-            {kpiCard("Lịch hẹn sắp tới", "8")}
-          </div>
-        </div>
+        />
+        <p style={{ marginTop: "10px", fontWeight: "600", color: "#444" }}>
+          SPA LOGO
+        </p>
       </div>
+
+      <nav>
+        {menuItems.map((label) => (
+          <MenuItem
+            key={label}
+            label={label}
+            activeMenu={activeMenu}
+            setActiveMenu={setActiveMenu}
+          />
+        ))}
+      </nav>
     </div>
   );
 }
@@ -110,13 +80,11 @@ function MenuItem({ label, activeMenu, setActiveMenu }) {
     <div
       onClick={() => setActiveMenu(label)}
       style={{
-        width: "100%",                // tràn full ngang sidebar
-        boxSizing: "border-box",
+        width: "100%",
         padding: "14px 25px",
         fontWeight: "600",
         cursor: "pointer",
         background: isActive ? "#e8a8c0" : "transparent",
-        color: "#333",
         transition: "0.2s",
       }}
       onMouseOver={(e) => {
@@ -131,19 +99,76 @@ function MenuItem({ label, activeMenu, setActiveMenu }) {
   );
 }
 
+/* ============================
+     MAIN CONTENT ERP
+============================= */
+
+function MainContent() {
+  return (
+    <div
+      style={{
+        flex: 1,
+        background: "#f5f6fa",
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* TOP BAR */}
+      <div
+        style={{
+          background: "#ffffff",
+          padding: "20px 32px",
+          borderBottom: "1px solid #e0e0e0",
+          fontSize: "26px",
+          fontWeight: "700",
+        }}
+      >
+        ERP SPA Dashboard
+      </div>
+
+      {/* PAGE CONTENT */}
+      <div style={{ padding: "32px" }}>
+        <h2 style={{ fontSize: "22px", marginBottom: "8px" }}>
+          Welcome to ERP SPA
+        </h2>
+        <p style={{ color: "#666", marginBottom: "32px" }}>
+          Trang chủ hiển thị các widget, KPI, thông báo và báo cáo nhanh của spa.
+        </p>
+
+        {/* KPI GRID */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "24px",
+          }}
+        >
+          {kpiCard("Khách hôm nay", "24")}
+          {kpiCard("Doanh thu hôm nay", "12,500,000đ")}
+          {kpiCard("Lịch hẹn sắp tới", "8")}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* KPI CARD COMPONENT */
 function kpiCard(title, value) {
   return (
     <div
       style={{
         background: "#ffffff",
-        padding: "20px",
+        padding: "24px",
         borderRadius: "12px",
         border: "1px solid #e5e7eb",
-        minWidth: "220px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
       }}
     >
       <p style={{ margin: 0, color: "#777" }}>{title}</p>
-      <h2 style={{ marginTop: "8px", fontSize: "22px" }}>{value}</h2>
+      <h2 style={{ marginTop: "10px", fontSize: "26px", fontWeight: "700" }}>
+        {value}
+      </h2>
     </div>
   );
 }
