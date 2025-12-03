@@ -1,260 +1,409 @@
-// pages/khach-hang/index.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function KhachHangPage() {
-  const customers = [
-    {
-      name: "Ngọc Anh",
-      phone: "0901234567",
-      gender: "Nữ",
-      tag: "VIP",
-      totalSpend: "12,500,000đ",
-      visits: 8,
-      lastVisit: "02/12/2025",
-    },
-    {
-      name: "Minh Khoa",
-      phone: "0938765432",
-      gender: "Nam",
-      tag: "Khách mới",
-      totalSpend: "4,200,000đ",
-      visits: 3,
-      lastVisit: "28/11/2025",
-    },
-    {
-      name: "Thu Hà",
-      phone: "0912345789",
-      gender: "Nữ",
-      tag: "Khách quen",
-      totalSpend: "7,800,000đ",
-      visits: 5,
-      lastVisit: "25/11/2025",
-    },
-  ];
+  const router = useRouter();
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Lấy dữ liệu từ Supabase (nếu bảng rỗng thì hiển thị mock data)
+  useEffect(() => {
+    async function fetchCustomers() {
+      try {
+        const { data, error } = await supabase
+          .from("customers")
+          .select("*")
+          .order("last_visit", { ascending: false });
+
+        if (error) {
+          console.error("Lỗi Supabase:", error.message);
+        }
+
+        if (data && data.length > 0) {
+          const mapped = data.map((item) => ({
+            id: item.id,
+            name: item.name,
+            phone: item.phone,
+            gender: item.gender,
+            tag: item.tag,
+            total_spent: item.total_spent,
+            visits: item.visits,
+            last_visit: item.last_visit,
+          }));
+          setCustomers(mapped);
+        } else {
+          // Mock data khi chưa có dữ liệu thật
+          setCustomers([
+            {
+              id: 1,
+              name: "Ngọc Anh",
+              phone: "0901234567",
+              gender: "Nữ",
+              tag: "VIP",
+              total_spent: "12,500,000đ",
+              visits: 8,
+              last_visit: "02/12/2025",
+            },
+            {
+              id: 2,
+              name: "Minh Khoa",
+              phone: "0938765432",
+              gender: "Nam",
+              tag: "Khách mới",
+              total_spent: "4,200,000đ",
+              visits: 3,
+              last_visit: "28/11/2025",
+            },
+            {
+              id: 3,
+              name: "Thu Hà",
+              phone: "0912345789",
+              gender: "Nữ",
+              tag: "Khách quen",
+              total_spent: "7,800,000đ",
+              visits: 5,
+              last_visit: "25/11/2025",
+            },
+          ]);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCustomers();
+  }, []);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#f7f7fb",
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      }}
-    >
-      {/* SIDEBAR CỐ ĐỊNH – giống Dashboard */}
-      <div
-        style={{
-          width: "260px",
-          backgroundColor: "#f8c6d1",
-          padding: "24px 20px 40px",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          <div
-            style={{
-              width: "140px",
-              height: "140px",
-              backgroundColor: "#f4b6c2",
-              borderRadius: "10px",
-              margin: "0 auto",
-            }}
-          />
-          <p style={{ marginTop: "10px", fontWeight: 600 }}>SPA LOGO</p>
+    <div className="page">
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="logo-box">
+          <div className="logo-placeholder" />
+          <div className="logo-text">SPA LOGO</div>
         </div>
 
-        {/* Menu */}
-        <div>
-          <Link href="/">
-            <div
-              style={{
-                padding: "12px 18px",
-                borderRadius: "6px",
-                marginBottom: "6px",
-                cursor: "pointer",
-                fontWeight: 500,
-                backgroundColor: "transparent",
-              }}
+        <nav className="menu">
+          <Link href="/" legacyBehavior>
+            <a
+              className={
+                router.pathname === "/"
+                  ? "menu-item active"
+                  : "menu-item"
+              }
             >
               Dashboard
-            </div>
+            </a>
           </Link>
 
-          <Link href="/khach-hang">
-            <div
-              style={{
-                padding: "12px 18px",
-                borderRadius: "6px",
-                marginBottom: "6px",
-                cursor: "pointer",
-                fontWeight: 500,
-                backgroundColor: "#e79bb5", // đang chọn Khách hàng
-              }}
+          <Link href="/khach-hang" legacyBehavior>
+            <a
+              className={
+                router.pathname === "/khach-hang"
+                  ? "menu-item active"
+                  : "menu-item"
+              }
             >
               Khách hàng
-            </div>
+            </a>
           </Link>
 
-          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+          <button className="menu-item" type="button">
             Lịch hẹn
-          </div>
-          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
-            Liệu trình
-          </div>
-          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
-            Kho
-          </div>
-          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
-            POS
-          </div>
-          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
-            CSKH
-          </div>
-          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
-            Báo cáo
-          </div>
-        </div>
-      </div>
-
-      {/* NỘI DUNG BÊN PHẢI – trang Khách hàng */}
-      <div style={{ flex: 1, padding: "32px 48px" }}>
-        {/* Tiêu đề */}
-        <h1 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "24px" }}>
-          Quản lý khách hàng
-        </h1>
-
-        {/* Thanh tìm kiếm + filter + nút thêm */}
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            alignItems: "center",
-            marginBottom: "24px",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Tìm theo tên hoặc số điện thoại..."
-            style={{
-              flex: 1,
-              padding: "10px 14px",
-              borderRadius: "999px",
-              border: "1px solid #e0e0e0",
-              outline: "none",
-            }}
-          />
-          <select
-            style={{
-              padding: "10px 14px",
-              borderRadius: "999px",
-              border: "1px solid #e0e0e0",
-              outline: "none",
-            }}
-          >
-            <option>Tất cả</option>
-            <option>VIP</option>
-            <option>Khách mới</option>
-            <option>Khách quen</option>
-          </select>
-          <button
-            style={{
-              padding: "10px 18px",
-              borderRadius: "999px",
-              border: "none",
-              backgroundColor: "#ff6f91",
-              color: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            + Thêm khách hàng
           </button>
-        </div>
+          <button className="menu-item" type="button">
+            Liệu trình
+          </button>
+          <button className="menu-item" type="button">
+            Kho
+          </button>
+          <button className="menu-item" type="button">
+            POS
+          </button>
+          <button className="menu-item" type="button">
+            CSKH
+          </button>
+          <button className="menu-item" type="button">
+            Báo cáo
+          </button>
+        </nav>
+      </aside>
 
-        {/* Bảng khách hàng */}
-        <div
-          style={{
-            backgroundColor: "#ffffff",
-            borderRadius: "16px",
-            boxShadow: "0 12px 25px rgba(0,0,0,0.05)",
-            overflow: "hidden",
-          }}
-        >
-          {/* Header bảng */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "2fr 1.5fr 1fr 1.2fr 1.5fr 1fr 1.2fr 0.8fr",
-              padding: "12px 20px",
-              backgroundColor: "#ffe1ea",
-              fontWeight: 600,
-              fontSize: "14px",
-            }}
-          >
-            <div>Tên khách</div>
-            <div>Số điện thoại</div>
-            <div>Giới tính</div>
-            <div>Tag</div>
-            <div>Tổng chi tiêu</div>
-            <div>Lần đến</div>
-            <div>Gần nhất</div>
-            <div>Thao tác</div>
+      {/* MAIN CONTENT */}
+      <main className="main">
+        <div className="main-inner">
+          <h1 className="page-title">Quản lý khách hàng</h1>
+
+          {/* Thanh filter trên cùng */}
+          <div className="toolbar">
+            <input
+              className="search-input"
+              placeholder="Tìm theo tên hoặc số điện thoại..."
+            />
+            <select className="filter-select" defaultValue="all">
+              <option value="all">Tất cả</option>
+              <option value="vip">VIP</option>
+              <option value="new">Khách mới</option>
+              <option value="loyal">Khách quen</option>
+            </select>
+            <button className="add-button">+ Thêm khách hàng</button>
           </div>
 
-          {/* Dòng dữ liệu */}
-          {customers.map((c, index) => (
-            <div
-              key={index}
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "2fr 1.5fr 1fr 1.2fr 1.5fr 1fr 1.2fr 0.8fr",
-                padding: "12px 20px",
-                borderTop: "1px solid #f1f1f1",
-                fontSize: "14px",
-                alignItems: "center",
-              }}
-            >
-              <div>{c.name}</div>
-              <div>{c.phone}</div>
-              <div>{c.gender}</div>
-              <div>
-                <span
-                  style={{
-                    padding: "4px 10px",
-                    borderRadius: "999px",
-                    backgroundColor: "#ffe1ea",
-                    color: "#b23b5d",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                  }}
-                >
-                  {c.tag}
-                </span>
-              </div>
-              <div>{c.totalSpend}</div>
-              <div>{c.visits}</div>
-              <div>{c.lastVisit}</div>
-              <div>
-                <button
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: "999px",
-                    border: "1px solid #e0e0e0",
-                    backgroundColor: "#fff",
-                    cursor: "pointer",
-                    fontSize: "13px",
-                  }}
-                >
-                  Xem
-                </button>
-              </div>
-            </div>
-          ))}
+          {/* Bảng khách hàng */}
+          <div className="card">
+            {loading ? (
+              <div className="loading">Đang tải dữ liệu...</div>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Tên khách</th>
+                    <th>Số điện thoại</th>
+                    <th>Giới tính</th>
+                    <th>Tag</th>
+                    <th>Tổng chi tiêu</th>
+                    <th>Lần đến</th>
+                    <th>Gần nhất</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.name}</td>
+                      <td>{c.phone}</td>
+                      <td>{c.gender}</td>
+                      <td>
+                        <span className="tag-badge">{c.tag}</span>
+                      </td>
+                      <td>{c.total_spent}</td>
+                      <td>{c.visits}</td>
+                      <td>{c.last_visit}</td>
+                      <td>
+                        <button className="view-button">Xem</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
+
+      <style jsx>{`
+        .page {
+          display: flex;
+          min-height: 100vh;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+            sans-serif;
+          background: #f9fafb;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+          width: 260px;
+          background: #ffd6e8;
+          padding: 32px 24px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .logo-box {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .logo-placeholder {
+          width: 140px;
+          height: 160px;
+          margin: 0 auto 12px;
+          border-radius: 16px;
+          background: #f4b1c8;
+        }
+
+        .logo-text {
+          font-weight: 600;
+          font-size: 16px;
+        }
+
+        .menu {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .menu-item {
+          display: block; /* để tràn full chiều ngang */
+          width: 100%;
+          padding: 10px 16px;
+          border-radius: 12px;
+          border: none;
+          background: transparent;
+          text-align: left;
+          font-size: 15px;
+          font-weight: 500;
+          cursor: pointer;
+          color: #222222;
+          text-decoration: none; /* bỏ gạch chân của <a> */
+          transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .menu-item:hover {
+          background: #f4b1c8; /* MÀU HỒNG HOVER – giống Dashboard */
+        }
+
+        .menu-item.active {
+          background: #f4b1c8; /* MÀU HỒNG ACTIVE – giống Dashboard */
+        }
+
+        /* MAIN */
+        .main {
+          flex: 1;
+          padding: 32px;
+          box-sizing: border-box;
+        }
+
+        .main-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .page-title {
+          font-size: 32px;
+          font-weight: 700;
+          margin: 0 0 24px;
+        }
+
+        .toolbar {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .search-input {
+          flex: 1;
+          padding: 10px 14px;
+          border-radius: 999px;
+          border: 1px solid #e5e7eb;
+          font-size: 14px;
+          outline: none;
+        }
+
+        .search-input:focus {
+          border-color: #f973b4;
+          box-shadow: 0 0 0 1px #f973b4;
+        }
+
+        .filter-select {
+          padding: 10px 14px;
+          border-radius: 999px;
+          border: 1px solid #e5e7eb;
+          font-size: 14px;
+          outline: none;
+          background: #ffffff;
+        }
+
+        .add-button {
+          padding: 10px 18px;
+          border-radius: 999px;
+          border: none;
+          background: #f973b4;
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+
+        .add-button:hover {
+          background: #f759a5;
+        }
+
+        .card {
+          background: #ffffff;
+          border-radius: 24px;
+          padding: 20px 24px;
+          box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+        }
+
+        .loading {
+          padding: 16px;
+          font-size: 14px;
+        }
+
+        table.table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 14px;
+        }
+
+        .table thead tr {
+          background: #ffe2ee;
+        }
+
+        .table th,
+        .table td {
+          padding: 12px 10px;
+          text-align: left;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .tag-badge {
+          display: inline-block;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: #ffd6e8;
+          color: #a61b4c;
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .view-button {
+          padding: 6px 14px;
+          border-radius: 999px;
+          border: 1px solid #e5e7eb;
+          background: #ffffff;
+          font-size: 13px;
+          cursor: pointer;
+        }
+
+        .view-button:hover {
+          background: #f3f4f6;
+        }
+
+        @media (max-width: 1024px) {
+          .page {
+            flex-direction: column;
+          }
+
+          .sidebar {
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+          }
+
+          .logo-box {
+            margin-bottom: 0;
+            margin-right: 24px;
+          }
+
+          .menu {
+            flex-direction: row;
+            flex-wrap: wrap;
+          }
+
+          .main {
+            padding: 20px;
+          }
+        }
+      </style>
     </div>
   );
 }
