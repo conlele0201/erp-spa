@@ -1,18 +1,19 @@
 import React, { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
 
   const menuItems = [
-    "Dashboard",
-    "Khách hàng",
-    "Lịch hẹn",
-    "Liệu trình",
-    "Kho",
-    "POS",
-    "CSKH",
-    "Báo cáo",
-    "Hệ thống",
+    { name: "Dashboard", path: "/" },
+    { name: "Khách hàng", path: "/khach-hang" },
+    { name: "Lịch hẹn", path: "/lich-hen" },
+    { name: "Liệu trình", path: "/lieu-trinh" },
+    { name: "Kho", path: "/kho" },
+    { name: "POS", path: "/pos" },
+    { name: "CSKH", path: "/cskh" },
+    { name: "Báo cáo", path: "/bao-cao" },
+    { name: "Hệ thống", path: "/he-thong" },
   ];
 
   return (
@@ -63,41 +64,36 @@ function Sidebar({ menuItems, activeMenu, setActiveMenu }) {
 
       {/* MENU */}
       <nav>
-        {menuItems.map((label) => (
-          <MenuItem
-            key={label}
-            label={label}
-            activeMenu={activeMenu}
-            setActiveMenu={setActiveMenu}
-          />
-        ))}
+        {menuItems.map((item) => {
+          const isActive = activeMenu === item.name;
+          return (
+            <Link key={item.name} href={item.path} legacyBehavior>
+              <a
+                onClick={() => setActiveMenu(item.name)}
+                style={{
+                  width: "100%",
+                  display: "block",
+                  padding: "14px 25px",
+                  fontWeight: isActive ? "600" : "400",
+                  cursor: "pointer",
+                  background: isActive ? "#e8a8c0" : "transparent",
+                  transition: "0.2s",
+                  textDecoration: "none",
+                  color: "#333",
+                }}
+                onMouseOver={(e) => {
+                  if (!isActive) e.currentTarget.style.background = "#f4c7d9";
+                }}
+                onMouseOut={(e) => {
+                  if (!isActive) e.currentTarget.style.background = "transparent";
+                }}
+              >
+                {item.name}
+              </a>
+            </Link>
+          );
+        })}
       </nav>
-    </div>
-  );
-}
-
-function MenuItem({ label, activeMenu, setActiveMenu }) {
-  const isActive = activeMenu === label;
-
-  return (
-    <div
-      onClick={() => setActiveMenu(label)}
-      style={{
-        width: "100%",
-        padding: "14px 25px",
-        fontWeight: "600",
-        cursor: "pointer",
-        background: isActive ? "#e8a8c0" : "transparent",
-        transition: "0.2s",
-      }}
-      onMouseOver={(e) => {
-        if (!isActive) e.currentTarget.style.background = "#f4c7d9";
-      }}
-      onMouseOut={(e) => {
-        if (!isActive) e.currentTarget.style.background = "transparent";
-      }}
-    >
-      {label}
     </div>
   );
 }
@@ -157,7 +153,7 @@ function MainContent() {
 
   const careReminders = [
     "Gọi lại khách Thuỷ (sau điều trị 3 ngày)",
-    "Nhắn tin nhắc liệu trình lần 3 cho khách Ngọc Hân",
+    "Nhắc liệu trình lần 3 cho khách Ngọc Hân",
     "Chúc mừng sinh nhật khách Minh Anh",
   ];
 
@@ -302,7 +298,7 @@ function MainContent() {
             marginBottom: "32px",
           }}
         >
-          {/* C1 – Doanh thu 7 ngày */}
+          {/* C1 – Doanh thu 7 ngày gần nhất */}
           <Card title="Doanh thu 7 ngày gần nhất">
             {revenue7days.map((r, idx) => (
               <div
@@ -324,7 +320,7 @@ function MainContent() {
             ))}
           </Card>
 
-          {/* C2 – Top dịch vụ */}
+          {/* C2 – Top dịch vụ 7 ngày qua */}
           <Card title="Top dịch vụ 7 ngày qua">
             {topServices.map((s, idx) => (
               <div
