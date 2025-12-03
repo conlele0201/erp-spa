@@ -1,17 +1,21 @@
+import { useState } from "react";
+
 export default function Home() {
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
+
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "Arial" }}>
 
-      {/* MENU TRÁI – FULL HỒNG ĐẬM */}
+      {/* MENU TRÁI NỀN TRẮNG – SANG – SẠCH */}
       <aside
         style={{
           width: "260px",
-          background: "#f4c7d9", // Hồng đậm hơn
+          background: "#ffffff",
           padding: "25px",
           display: "flex",
           flexDirection: "column",
           gap: "30px",
-          borderRight: "1px solid #e3b7c8",
+          borderRight: "1px solid #e5e7eb",
           height: "100%",
         }}
       >
@@ -21,27 +25,27 @@ export default function Home() {
             style={{
               width: "100px",
               height: "100px",
-              background: "#f1bbcd", // nền logo hồng đậm
+              background: "#f4c7d9",
               borderRadius: "14px",
               margin: "0 auto",
             }}
           ></div>
-          <p style={{ marginTop: "12px", fontWeight: "700", color: "#333" }}>
+          <p style={{ marginTop: "12px", fontWeight: "700", color: "#444" }}>
             SPA LOGO
           </p>
         </div>
 
         {/* MENU */}
         <nav style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          {menuItem("Dashboard")}
-          {menuItem("Khách hàng")}
-          {menuItem("Lịch hẹn")}
-          {menuItem("Liệu trình")}
-          {menuItem("Kho")}
-          {menuItem("POS")}
-          {menuItem("CSKH")}
-          {menuItem("Báo cáo")}
-          {menuItem("Hệ thống")}
+          {menuItem("Dashboard", activeMenu, setActiveMenu)}
+          {menuItem("Khách hàng", activeMenu, setActiveMenu)}
+          {menuItem("Lịch hẹn", activeMenu, setActiveMenu)}
+          {menuItem("Liệu trình", activeMenu, setActiveMenu)}
+          {menuItem("Kho", activeMenu, setActiveMenu)}
+          {menuItem("POS", activeMenu, setActiveMenu)}
+          {menuItem("CSKH", activeMenu, setActiveMenu)}
+          {menuItem("Báo cáo", activeMenu, setActiveMenu)}
+          {menuItem("Hệ thống", activeMenu, setActiveMenu)}
         </nav>
       </aside>
 
@@ -60,7 +64,9 @@ export default function Home() {
             justifyContent: "space-between",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "600" }}>ERP SPA Dashboard</h2>
+          <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "600" }}>
+            ERP SPA Dashboard
+          </h2>
 
           <div
             style={{
@@ -94,10 +100,10 @@ export default function Home() {
   );
 }
 
-/* MENU ITEM – HOVER + ACTIVE HỒNG ĐẬM */
-function menuItem(label) {
+function menuItem(label, activeMenu, setActiveMenu) {
   return (
     <div
+      onClick={() => setActiveMenu(label)}
       style={{
         padding: "12px 12px",
         fontWeight: "600",
@@ -105,17 +111,23 @@ function menuItem(label) {
         borderRadius: "8px",
         cursor: "pointer",
         transition: "0.25s",
+        background:
+          activeMenu === label
+            ? "#e8a8c0" // màu hồng đậm khi chọn
+            : "transparent",
       }}
-      onMouseOver={(e) => (e.currentTarget.style.background = "#e8a8c0")}
-      onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
-      onMouseDown={(e) => (e.currentTarget.style.background = "#dd8eac")}
+      onMouseOver={(e) => {
+        if (activeMenu !== label) e.currentTarget.style.background = "#f4c7d9";
+      }}
+      onMouseOut={(e) => {
+        if (activeMenu !== label) e.currentTarget.style.background = "transparent";
+      }}
     >
       {label}
     </div>
   );
 }
 
-/* KPI CARDS */
 function kpiCard(title, value) {
   return (
     <div
