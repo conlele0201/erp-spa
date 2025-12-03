@@ -1,251 +1,259 @@
 // pages/khach-hang/index.js
-import React, { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-
-// Mock data dùng khi:
-// - Mới khởi tạo dự án
-// - Hoặc Supabase chưa cấu hình / chưa có dữ liệu
-const MOCK_CUSTOMERS = [
-  {
-    id: 1,
-    name: "Ngọc Anh",
-    phone: "0901234567",
-    gender: "Nữ",
-    tag: "VIP",
-    totalSpend: "12,500,000đ",
-    visits: 8,
-    lastVisit: "02/12/2025",
-  },
-  {
-    id: 2,
-    name: "Minh Khoa",
-    phone: "0938765432",
-    gender: "Nam",
-    tag: "Khách mới",
-    totalSpend: "4,200,000đ",
-    visits: 3,
-    lastVisit: "28/11/2025",
-  },
-  {
-    id: 3,
-    name: "Thu Hà",
-    phone: "0912345789",
-    gender: "Nữ",
-    tag: "Khách quen",
-    totalSpend: "7,800,000đ",
-    visits: 5,
-    lastVisit: "25/11/2025",
-  },
-];
+import React from "react";
+import Link from "next/link";
 
 export default function KhachHangPage() {
-  const [customers, setCustomers] = useState(MOCK_CUSTOMERS);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Nếu chưa có supabase client (thiếu env) thì dùng luôn MOCK_CUSTOMERS
-    if (!supabase) {
-      console.warn("Supabase client không khả dụng, dùng mock data.");
-      setLoading(false);
-      return;
-    }
-
-    async function fetchCustomers() {
-      try {
-        const { data, error } = await supabase
-          .from("customers")
-          .select("*")
-          .order("last_visit", { ascending: false });
-
-        if (error) {
-          console.error("Supabase error:", error.message);
-          setLoading(false);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          const mapped = data.map((row) => ({
-            id: row.id,
-            name: row.name,
-            phone: row.phone,
-            gender: row.gender,
-            tag: row.tag,
-            totalSpend: row.total_spend, // hoặc format lại nếu cần
-            visits: row.total_visits,
-            lastVisit: row.last_visit,
-          }));
-          setCustomers(mapped);
-        }
-
-        setLoading(false);
-      } catch (err) {
-        console.error("Unexpected error when fetching customers:", err);
-        setLoading(false);
-      }
-    }
-
-    fetchCustomers();
-  }, []);
+  const customers = [
+    {
+      name: "Ngọc Anh",
+      phone: "0901234567",
+      gender: "Nữ",
+      tag: "VIP",
+      totalSpend: "12,500,000đ",
+      visits: 8,
+      lastVisit: "02/12/2025",
+    },
+    {
+      name: "Minh Khoa",
+      phone: "0938765432",
+      gender: "Nam",
+      tag: "Khách mới",
+      totalSpend: "4,200,000đ",
+      visits: 3,
+      lastVisit: "28/11/2025",
+    },
+    {
+      name: "Thu Hà",
+      phone: "0912345789",
+      gender: "Nữ",
+      tag: "Khách quen",
+      totalSpend: "7,800,000đ",
+      visits: 5,
+      lastVisit: "25/11/2025",
+    },
+  ];
 
   return (
-    <div style={{ padding: "24px 40px" }}>
-      <h1
-        style={{
-          fontSize: "32px",
-          fontWeight: 700,
-          marginBottom: "24px",
-        }}
-      >
-        Quản lý khách hàng
-      </h1>
-
-      {/* Thanh search + filter + button thêm khách */}
+    <div
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        backgroundColor: "#f7f7fb",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
+    >
+      {/* SIDEBAR CỐ ĐỊNH – giống Dashboard */}
       <div
         style={{
-          display: "flex",
-          gap: "16px",
-          marginBottom: "24px",
-          alignItems: "center",
+          width: "260px",
+          backgroundColor: "#f8c6d1",
+          padding: "24px 20px 40px",
         }}
       >
-        <input
-          type="text"
-          placeholder="Tìm theo tên hoặc số điện thoại..."
-          style={{
-            flex: 1,
-            padding: "10px 14px",
-            borderRadius: "999px",
-            border: "1px solid #e5e7eb",
-            outline: "none",
-            fontSize: "14px",
-          }}
-        />
-        <select
-          style={{
-            width: "140px",
-            padding: "10px 14px",
-            borderRadius: "999px",
-            border: "1px solid #e5e7eb",
-            fontSize: "14px",
-          }}
-        >
-          <option>Tất cả</option>
-          <option>VIP</option>
-          <option>Khách mới</option>
-          <option>Khách quen</option>
-        </select>
-        <button
-          style={{
-            padding: "10px 18px",
-            borderRadius: "999px",
-            border: "none",
-            backgroundColor: "#ec4899",
-            color: "#fff",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          + Thêm khách hàng
-        </button>
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <div
+            style={{
+              width: "140px",
+              height: "140px",
+              backgroundColor: "#f4b6c2",
+              borderRadius: "10px",
+              margin: "0 auto",
+            }}
+          />
+          <p style={{ marginTop: "10px", fontWeight: 600 }}>SPA LOGO</p>
+        </div>
+
+        {/* Menu */}
+        <div>
+          <Link href="/">
+            <div
+              style={{
+                padding: "12px 18px",
+                borderRadius: "6px",
+                marginBottom: "6px",
+                cursor: "pointer",
+                fontWeight: 500,
+                backgroundColor: "transparent",
+              }}
+            >
+              Dashboard
+            </div>
+          </Link>
+
+          <Link href="/khach-hang">
+            <div
+              style={{
+                padding: "12px 18px",
+                borderRadius: "6px",
+                marginBottom: "6px",
+                cursor: "pointer",
+                fontWeight: 500,
+                backgroundColor: "#e79bb5", // đang chọn Khách hàng
+              }}
+            >
+              Khách hàng
+            </div>
+          </Link>
+
+          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+            Lịch hẹn
+          </div>
+          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+            Liệu trình
+          </div>
+          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+            Kho
+          </div>
+          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+            POS
+          </div>
+          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+            CSKH
+          </div>
+          <div style={{ padding: "12px 18px", borderRadius: "6px", marginBottom: "6px" }}>
+            Báo cáo
+          </div>
+        </div>
       </div>
 
-      {/* Bảng khách hàng */}
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "24px",
-          padding: "20px 24px",
-          boxShadow: "0 10px 40px rgba(15, 23, 42, 0.05)",
-        }}
-      >
-        {loading ? (
-          <p>Đang tải dữ liệu khách hàng...</p>
-        ) : (
-          <table
+      {/* NỘI DUNG BÊN PHẢI – trang Khách hàng */}
+      <div style={{ flex: 1, padding: "32px 48px" }}>
+        {/* Tiêu đề */}
+        <h1 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "24px" }}>
+          Quản lý khách hàng
+        </h1>
+
+        {/* Thanh tìm kiếm + filter + nút thêm */}
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+            marginBottom: "24px",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Tìm theo tên hoặc số điện thoại..."
             style={{
-              width: "100%",
-              borderCollapse: "collapse",
+              flex: 1,
+              padding: "10px 14px",
+              borderRadius: "999px",
+              border: "1px solid #e0e0e0",
+              outline: "none",
+            }}
+          />
+          <select
+            style={{
+              padding: "10px 14px",
+              borderRadius: "999px",
+              border: "1px solid #e0e0e0",
+              outline: "none",
+            }}
+          >
+            <option>Tất cả</option>
+            <option>VIP</option>
+            <option>Khách mới</option>
+            <option>Khách quen</option>
+          </select>
+          <button
+            style={{
+              padding: "10px 18px",
+              borderRadius: "999px",
+              border: "none",
+              backgroundColor: "#ff6f91",
+              color: "#fff",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            + Thêm khách hàng
+          </button>
+        </div>
+
+        {/* Bảng khách hàng */}
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "16px",
+            boxShadow: "0 12px 25px rgba(0,0,0,0.05)",
+            overflow: "hidden",
+          }}
+        >
+          {/* Header bảng */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "2fr 1.5fr 1fr 1.2fr 1.5fr 1fr 1.2fr 0.8fr",
+              padding: "12px 20px",
+              backgroundColor: "#ffe1ea",
+              fontWeight: 600,
               fontSize: "14px",
             }}
           >
-            <thead>
-              <tr
-                style={{
-                  backgroundColor: "#ffe4ef",
-                  textAlign: "left",
-                  height: "44px",
-                }}
-              >
-                <th style={{ padding: "0 16px", borderRadius: "12px 0 0 12px" }}>
-                  Tên khách
-                </th>
-                <th style={{ padding: "0 16px" }}>Số điện thoại</th>
-                <th style={{ padding: "0 16px" }}>Giới tính</th>
-                <th style={{ padding: "0 16px" }}>Tag</th>
-                <th style={{ padding: "0 16px" }}>Tổng chi tiêu</th>
-                <th style={{ padding: "0 16px" }}>Lần đến</th>
-                <th style={{ padding: "0 16px" }}>Gần nhất</th>
-                <th
+            <div>Tên khách</div>
+            <div>Số điện thoại</div>
+            <div>Giới tính</div>
+            <div>Tag</div>
+            <div>Tổng chi tiêu</div>
+            <div>Lần đến</div>
+            <div>Gần nhất</div>
+            <div>Thao tác</div>
+          </div>
+
+          {/* Dòng dữ liệu */}
+          {customers.map((c, index) => (
+            <div
+              key={index}
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "2fr 1.5fr 1fr 1.2fr 1.5fr 1fr 1.2fr 0.8fr",
+                padding: "12px 20px",
+                borderTop: "1px solid #f1f1f1",
+                fontSize: "14px",
+                alignItems: "center",
+              }}
+            >
+              <div>{c.name}</div>
+              <div>{c.phone}</div>
+              <div>{c.gender}</div>
+              <div>
+                <span
                   style={{
-                    padding: "0 16px",
-                    borderRadius: "0 12px 12px 0",
-                    textAlign: "center",
+                    padding: "4px 10px",
+                    borderRadius: "999px",
+                    backgroundColor: "#ffe1ea",
+                    color: "#b23b5d",
+                    fontSize: "12px",
+                    fontWeight: 600,
                   }}
                 >
-                  Thao tác
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((customer, index) => (
-                <tr
-                  key={customer.id || index}
+                  {c.tag}
+                </span>
+              </div>
+              <div>{c.totalSpend}</div>
+              <div>{c.visits}</div>
+              <div>{c.lastVisit}</div>
+              <div>
+                <button
                   style={{
-                    borderBottom: "1px solid #f1f5f9",
-                    height: "56px",
+                    padding: "6px 12px",
+                    borderRadius: "999px",
+                    border: "1px solid #e0e0e0",
+                    backgroundColor: "#fff",
+                    cursor: "pointer",
+                    fontSize: "13px",
                   }}
                 >
-                  <td style={{ padding: "0 16px" }}>{customer.name}</td>
-                  <td style={{ padding: "0 16px" }}>{customer.phone}</td>
-                  <td style={{ padding: "0 16px" }}>{customer.gender}</td>
-                  <td style={{ padding: "0 16px" }}>
-                    <span
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: "999px",
-                        backgroundColor: "#ffe4ef",
-                        color: "#be185d",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {customer.tag}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0 16px" }}>{customer.totalSpend}</td>
-                  <td style={{ padding: "0 16px" }}>{customer.visits}</td>
-                  <td style={{ padding: "0 16px" }}>
-                    {customer.lastVisit || "-"}
-                  </td>
-                  <td style={{ padding: "0 16px", textAlign: "center" }}>
-                    <button
-                      style={{
-                        padding: "6px 14px",
-                        borderRadius: "999px",
-                        border: "1px solid #e5e7eb",
-                        backgroundColor: "#ffffff",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                      }}
-                    >
-                      Xem
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+                  Xem
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
