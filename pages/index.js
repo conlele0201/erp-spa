@@ -2,36 +2,36 @@ export default function Home() {
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "Arial" }}>
 
-      {/* MENU TRÁI SANG – TRẮNG – SPA */}
+      {/* MENU TRÁI FULL HỒNG PASTEL */}
       <aside
         style={{
-          width: "250px",
-          background: "#ffffff",
-          borderRight: "1px solid #e5e7eb",
-          padding: "20px",
+          width: "260px",
+          background: "#f8e9ef", // full pastel pink
+          padding: "25px",
           display: "flex",
           flexDirection: "column",
-          gap: "24px",
+          gap: "30px",
+          borderRight: "1px solid #e3cdd7",
         }}
       >
         {/* LOGO */}
         <div style={{ textAlign: "center" }}>
           <div
             style={{
-              width: "90px",
-              height: "90px",
-              background: "#f5e7ef",
-              borderRadius: "12px",
+              width: "100px",
+              height: "100px",
+              background: "#f2d5df",
+              borderRadius: "14px",
               margin: "0 auto",
             }}
           ></div>
-          <p style={{ marginTop: "10px", color: "#444", fontWeight: "600" }}>
+          <p style={{ marginTop: "10px", fontWeight: "600", color: "#444" }}>
             SPA LOGO
           </p>
         </div>
 
-        {/* MENU */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        {/* MENU ITEMS */}
+        <nav style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {menuItem("Dashboard")}
           {menuItem("Khách hàng")}
           {menuItem("Lịch hẹn")}
@@ -52,7 +52,7 @@ export default function Home() {
           style={{
             height: "65px",
             background: "#ffffff",
-            borderBottom: "1px solid #e5e7eb",
+            borderBottom: "1px solid #ececec",
             padding: "0 25px",
             display: "flex",
             alignItems: "center",
@@ -61,7 +61,6 @@ export default function Home() {
         >
           <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "600" }}>ERP SPA Dashboard</h2>
 
-          {/* Avatar */}
           <div
             style={{
               width: "42px",
@@ -82,7 +81,7 @@ export default function Home() {
             Trang chủ hiển thị các widget, KPI, thông báo và báo cáo nhanh của spa.
           </p>
 
-          {/* Đây là vị trí sau này sẽ thêm cards KPI */}
+          {/* KPI */}
           <div style={{ marginTop: "30px", display: "flex", gap: "20px" }}>
             {kpiCard("Khách hôm nay", "24")}
             {kpiCard("Doanh thu hôm nay", "12,500,000đ")}
@@ -94,24 +93,27 @@ export default function Home() {
   );
 }
 
+/* STYLE CHO MENU ITEM ĐƠN GIẢN + SANG */
 function menuItem(label) {
   return (
-    <a
+    <div
       style={{
-        padding: "12px 15px",
-        background: "#f5e7ef",
-        borderRadius: "8px",
+        padding: "12px 10px",
+        fontWeight: "600",
+        color: "#333",
         cursor: "pointer",
-        fontWeight: "500",
-        color: "#1f2937",
-        border: "1px solid #e9d5df",
+        borderRadius: "8px",
+        transition: "0.25s",
       }}
+      onMouseOver={(e) => (e.currentTarget.style.background = "#efd6de")}
+      onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
     >
       {label}
-    </a>
+    </div>
   );
 }
 
+/* KPI CARDS */
 function kpiCard(title, value) {
   return (
     <div
