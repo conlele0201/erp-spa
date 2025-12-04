@@ -1,7 +1,6 @@
 // pages/_app.js
 import "../styles/globals.css";
-import "../styles/sidebar.css";       // ✅ CSS sidebar import ở đây
-
+import "../styles/sidebar.css";
 import Layout from "../components/Layout";
 
 function MyApp({ Component, pageProps }) {
