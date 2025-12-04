@@ -1,75 +1,79 @@
-/* /styles/sidebar.css */
+/* ======================
+   LAYOUT CHUNG
+   ====================== */
 
-/* Layout tổng */
-.layout {
-  display: flex;
+/* Wrapper tổng cho toàn bộ app */
+.app-layout {
   min-height: 100vh;
 }
 
-/* Sidebar cố định */
+/* Sidebar chính bên trái */
 .sidebar {
   width: 260px;
-  background-color: #f8c8d8;
-  padding: 24px 20px;
+  min-height: 100vh;
+  background: #f7c7d9;
+  padding: 20px 15px;
   position: fixed;
-  left: 0;
   top: 0;
-  bottom: 0;
-  overflow-y: auto;
+  left: 0;
 }
 
-/* Logo */
-.logo-block {
-  text-align: center;
-  margin-bottom: 40px;
+/* Nội dung chính – đẩy sang phải đúng bằng width sidebar */
+.main-content {
+  margin-left: 260px;
+  padding: 24px 32px;
 }
 
-.logo-placeholder {
-  width: 140px;
-  height: 140px;
-  margin: auto;
-  background-color: #f3aec4;
+/* Ẩn mọi sidebar nào nằm BÊN TRONG nội dung (sidebar cũ của page) */
+.main-content .sidebar {
+  display: none;
+}
+
+/* ======================
+   LOGO
+   ====================== */
+
+.sidebar .logo {
+  width: 100%;
+  height: 180px;
+  background: #f4b6cd;
   border-radius: 12px;
+  margin-bottom: 20px;
 }
 
-.logo-text {
-  margin-top: 12px;
-  font-weight: bold;
-  color: #333;
+/* ======================
+   MENU
+   ====================== */
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-/* Menu */
-.menu-list {
-  margin-top: 10px;
+.sidebar ul li {
+  margin-bottom: 12px;
 }
 
-.menu-item {
-  padding: 12px 16px;
+/* Link menu mặc định */
+.sidebar ul li a {
+  display: block;
+  padding: 12px 15px;
+  background: #efb8cd;
   border-radius: 8px;
+  text-decoration: none;
+  color: #000;
   font-size: 16px;
-  color: #444;
-  cursor: pointer;
-  margin-bottom: 6px;
-  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
 }
 
 /* Hover */
-.menu-item:hover {
-  background-color: #f5b3c8;
+.sidebar ul li a:hover {
+  background: #e9a8c2;
 }
 
-/* Đang active */
-.menu-item.active {
-  background-color: #e796b4;
-  color: white;
-  font-weight: 600;
-}
-
-/* Content */
-.content {
-  margin-left: 260px;
-  padding: 30px;
-  width: calc(100% - 260px);
-  min-height: 100vh;
-  background-color: #fafafa;
+/* Active */
+.sidebar ul li a.active {
+  background: #e289b6;
+  color: #fff;
 }
