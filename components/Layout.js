@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 export default function Layout({ children }) {
   const router = useRouter();
 
+  const hideSidebar = router.pathname === "/"; // ẩn sidebar ở dashboard
+
   const menuItems = [
     { href: "/", label: "Dashboard" },
     { href: "/khach-hang", label: "Khách hàng" },
@@ -18,23 +20,25 @@ export default function Layout({ children }) {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <div className="logo">SPA LOGO</div>
-        <nav>
-          <ul>
-            {menuItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={router.pathname === item.href ? "active" : ""}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </aside>
+      {!hideSidebar && (
+        <aside className="sidebar">
+          <div className="logo">SPA LOGO</div>
+          <nav>
+            <ul>
+              {menuItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={router.pathname === item.href ? "active" : ""}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      )}
 
       <main className="main-content">{children}</main>
     </div>
