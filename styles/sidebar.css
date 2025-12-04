@@ -1,25 +1,38 @@
-/* styles/sidebar.css */
+/* ======================
+   LAYOUT CHUNG
+   ====================== */
 
-/* Layout tổng: sidebar + nội dung */
+/* Wrapper tổng cho toàn bộ app */
 .app-layout {
-  display: flex;
   min-height: 100vh;
 }
 
-/* Sidebar bên trái */
+/* Sidebar chính bên trái */
 .sidebar {
   width: 260px;
+  min-height: 100vh;
   background: #f7c7d9;
   padding: 20px 15px;
-  flex-shrink: 0;
-
-  /* Giữ sidebar luôn trên cùng khi scroll, không bị lệch */
-  position: sticky;
+  position: fixed;
   top: 0;
-  align-self: flex-start;
+  left: 0;
 }
 
-/* Logo */
+/* Nội dung chính – đẩy sang phải đúng bằng width sidebar */
+.main-content {
+  margin-left: 260px;
+  padding: 24px 32px;
+}
+
+/* Ẩn mọi sidebar nào nằm BÊN TRONG nội dung (sidebar cũ của page) */
+.main-content .sidebar {
+  display: none;
+}
+
+/* ======================
+   LOGO
+   ====================== */
+
 .sidebar .logo {
   width: 100%;
   height: 180px;
@@ -28,7 +41,10 @@
   margin-bottom: 20px;
 }
 
-/* Danh sách menu */
+/* ======================
+   MENU
+   ====================== */
+
 .sidebar ul {
   list-style: none;
   padding: 0;
@@ -39,7 +55,7 @@
   margin-bottom: 12px;
 }
 
-/* Link menu */
+/* Link menu mặc định */
 .sidebar ul li a {
   display: block;
   padding: 12px 15px;
@@ -60,12 +76,4 @@
 .sidebar ul li a.active {
   background: #e289b6;
   color: #fff;
-}
-
-/* Nội dung bên phải */
-.main-content {
-  flex: 1;
-  padding: 24px 32px;
-  background: #f9fafb;
-  box-sizing: border-box;
 }
