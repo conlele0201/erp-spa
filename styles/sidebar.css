@@ -1,61 +1,55 @@
-/* Layout chung */
-.layout-container {
-  display: flex;
-  height: 100vh;
-}
+/* styles/sidebar.css */
 
-/* Sidebar */
+/* Wrapper tổng */
 .sidebar {
-  width: 260px;
-  background: #f8c9d4;
-  padding-top: 40px;
-  padding-left: 20px;
-  padding-right: 20px;
-  font-family: Arial, sans-serif;
+  width: 240px;
+  min-height: 100vh;
+  background: #f7c7d9;
+  padding: 20px 15px;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
-.sidebar-logo {
+/* Logo */
+.sidebar .logo {
   width: 100%;
-  height: 150px;
-  background: #f5b0c0;
+  height: 180px;
+  background: #f4b6cd;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+/* Danh sách menu */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 12px;
+}
+
+/* Link menu */
+.sidebar ul li a {
+  display: block;
+  padding: 12px 15px;
+  background: #efb8cd;
   border-radius: 8px;
-  margin-bottom: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-}
-
-/* Menu */
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.menu-item {
-  padding: 12px 18px;
-  border-radius: 10px;
   text-decoration: none;
-  color: #333;
-  font-size: 16px;
-}
-
-.menu-item:hover {
-  background: #eaa6b8;
   color: #000;
+  font-size: 16px;
+  font-weight: 500;
 }
 
-.menu-item.active {
-  background: #dd8fa7;
+/* Hover */
+.sidebar ul li a:hover {
+  background: #e9a8c2;
+}
+
+/* Active */
+.sidebar ul li a.active {
+  background: #e289b6;
   color: white;
-  font-weight: bold;
-}
-
-/* Main content */
-.main-content {
-  flex: 1;
-  padding: 30px;
-  background: #fafafa;
-  overflow-y: auto;
 }
