@@ -26,9 +26,7 @@ export default function Layout({ children }) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={
-                    router.pathname === item.href ? "active" : ""
-                  }
+                  className={router.pathname === item.href ? "active" : ""}
                 >
                   {item.label}
                 </Link>
