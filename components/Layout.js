@@ -1,39 +1,40 @@
+// components/Layout.js
 import Link from "next/link";
 import { useRouter } from "next/router";
-import "../styles/sidebar.css";
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const menu = [
-    { label: "Dashboard", path: "/" },
-    { label: "Khách hàng", path: "/khach-hang" },
-    { label: "Lịch hẹn", path: "/lich-hen" },
-    { label: "Liệu trình", path: "/lieu-trinh" },
-    { label: "Kho", path: "/kho" },
-    { label: "POS", path: "/pos" },
-    { label: "CSKH", path: "/cskh" },
-    { label: "Báo cáo", path: "/bao-cao" },
+
+  const menuItems = [
+    { href: "/", label: "Dashboard" },
+    { href: "/khach-hang", label: "Khách hàng" },
+    { href: "/lich-hen", label: "Lịch hẹn" },
+    { href: "/lieu-trinh", label: "Liệu trình" },
+    { href: "/kho", label: "Kho" },
+    { href: "/pos", label: "POS" },
+    { href: "/cskh", label: "CSKH" },
+    { href: "/bao-cao", label: "Báo cáo" },
   ];
 
   return (
-    <div className="layout-container">
+    <div className="app-layout">
       <aside className="sidebar">
-        <div className="sidebar-logo">SPA LOGO</div>
-
-        <nav className="sidebar-menu">
-          {menu.map((item) => (
-            <Link key={item.path} href={item.path} legacyBehavior>
-              <a
-                className={
-                  router.pathname === item.path
-                    ? "menu-item active"
-                    : "menu-item"
-                }
-              >
-                {item.label}
-              </a>
-            </Link>
-          ))}
+        <div className="logo">SPA LOGO</div>
+        <nav>
+          <ul>
+            {menuItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={
+                    router.pathname === item.href ? "active" : ""
+                  }
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
       </aside>
 
