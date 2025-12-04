@@ -1,14 +1,22 @@
 /* styles/sidebar.css */
 
-/* Wrapper tổng */
-.sidebar {
-  width: 240px;
+/* Layout tổng: sidebar + nội dung */
+.app-layout {
+  display: flex;
   min-height: 100vh;
+}
+
+/* Sidebar bên trái */
+.sidebar {
+  width: 260px;
   background: #f7c7d9;
   padding: 20px 15px;
-  position: fixed;
+  flex-shrink: 0;
+
+  /* Giữ sidebar luôn trên cùng khi scroll, không bị lệch */
+  position: sticky;
   top: 0;
-  left: 0;
+  align-self: flex-start;
 }
 
 /* Logo */
@@ -51,5 +59,13 @@
 /* Active */
 .sidebar ul li a.active {
   background: #e289b6;
-  color: white;
+  color: #fff;
+}
+
+/* Nội dung bên phải */
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  background: #f9fafb;
+  box-sizing: border-box;
 }
