@@ -2,31 +2,31 @@
    LAYOUT CHUNG
    ====================== */
 
-/* Wrapper tổng cho toàn bộ app */
 .app-layout {
   min-height: 100vh;
+  display: flex;
 }
 
-/* Sidebar chính bên trái */
+/* Sidebar chính */
 .sidebar {
   width: 260px;
-  min-height: 100vh;
   background: #f7c7d9;
   padding: 20px 15px;
+  min-height: 100vh;
   position: fixed;
-  top: 0;
   left: 0;
+  top: 0;
 }
 
-/* Nội dung chính – đẩy sang phải đúng bằng width sidebar */
+/* Nội dung chính */
 .main-content {
   margin-left: 260px;
-  padding: 24px 32px;
+  padding: 30px 40px;
 }
 
-/* Ẩn mọi sidebar nào nằm BÊN TRONG nội dung (sidebar cũ của page) */
+/* Ẩn sidebar cũ nằm trong các page */
 .main-content .sidebar {
-  display: none;
+  display: none !important;
 }
 
 /* ======================
@@ -55,7 +55,6 @@
   margin-bottom: 12px;
 }
 
-/* Link menu mặc định */
 .sidebar ul li a {
   display: block;
   padding: 12px 15px;
@@ -67,12 +66,10 @@
   font-weight: 500;
 }
 
-/* Hover */
 .sidebar ul li a:hover {
   background: #e9a8c2;
 }
 
-/* Active */
 .sidebar ul li a.active {
   background: #e289b6;
   color: #fff;
