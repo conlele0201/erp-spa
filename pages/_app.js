@@ -1,11 +1,15 @@
 // pages/_app.js
-import "../styles/globals.css";      // CSS chung
-import Layout from "../components/Layout";   // Layout sidebar
+import "../styles/globals.css";
+import "../styles/sidebar.css";       // ✅ CSS sidebar import ở đây
 
-export default function MyApp({ Component, pageProps }) {
+import Layout from "../components/Layout";
+
+function MyApp({ Component, pageProps }) {
   return (
     <Layout>
       <Component {...pageProps} />
     </Layout>
   );
 }
+
+export default MyApp;
