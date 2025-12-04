@@ -1,6 +1,5 @@
 /* styles/sidebar.css */
 
-/* Sidebar bên trái dùng cho toàn bộ app (Layout chung) */
 .sidebar {
   width: 240px;
   min-height: 100vh;
@@ -9,9 +8,9 @@
   position: fixed;
   top: 0;
   left: 0;
+  box-sizing: border-box;
 }
 
-/* Logo */
 .sidebar .logo {
   width: 100%;
   height: 180px;
@@ -20,7 +19,6 @@
   margin-bottom: 20px;
 }
 
-/* Danh sách menu */
 .sidebar ul {
   list-style: none;
   padding: 0;
@@ -31,7 +29,6 @@
   margin-bottom: 12px;
 }
 
-/* Link menu */
 .sidebar ul li a {
   display: block;
   padding: 12px 15px;
@@ -43,34 +40,11 @@
   font-weight: 500;
 }
 
-/* Hover */
 .sidebar ul li a:hover {
   background: #e9a8c2;
 }
 
-/* Active */
 .sidebar ul li a.active {
   background: #e289b6;
   color: white;
-}
-
-/* ===========================
-   FIX LỖI 2 SIDEBAR Ở DASHBOARD
-   =========================== */
-
-/* Nếu bên trong main-content còn 1 layout cũ (.app-layout)
-   thì coi nó là nội dung bình thường, không phải layout mới */
-.main-content > .app-layout {
-  display: block;
-}
-
-/* Ẩn sidebar cũ nằm BÊN TRONG main-content (sidebar thứ 2) */
-.main-content > .app-layout .sidebar {
-  display: none !important;
-}
-
-/* Bỏ margin-left của main-content cũ để không bị lệch layout */
-.main-content > .app-layout .main-content {
-  margin-left: 0;
-  padding: 0;
 }
