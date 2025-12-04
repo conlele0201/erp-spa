@@ -1,0 +1,23 @@
+/* styles/globals.css */
+
+/* Reset nhẹ để mọi trang đồng nhất */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Font + nền chung cho toàn bộ app */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background-color: #f8f9fb;
+  color: #111827;
+}
+
+/* Đảm bảo app full chiều cao */
+html,
+body,
+#__next {
+  height: 100%;
+}
