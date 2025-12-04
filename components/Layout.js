@@ -1,7 +1,6 @@
 // /components/Layout.js
 import Link from "next/link";
 import { useRouter } from "next/router";
-import "../styles/sidebar.css";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -19,7 +18,7 @@ export default function Layout({ children }) {
 
   return (
     <div className="layout">
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <aside className="sidebar">
         <div className="logo-block">
           <div className="logo-placeholder"></div>
@@ -43,7 +42,7 @@ export default function Layout({ children }) {
         </nav>
       </aside>
 
-      {/* CONTENT */}
+      {/* Nội dung */}
       <main className="content">{children}</main>
     </div>
   );
