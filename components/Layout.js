@@ -1,49 +1,43 @@
-// /components/Layout.js
 import Link from "next/link";
 import { useRouter } from "next/router";
+import "../styles/sidebar.css";
 
 export default function Layout({ children }) {
   const router = useRouter();
-
   const menu = [
-    { name: "Dashboard", path: "/" },
-    { name: "Khách hàng", path: "/khach-hang" },
-    { name: "Lịch hẹn", path: "/lich-hen" },
-    { name: "Liệu trình", path: "/lieu-trinh" },
-    { name: "Kho", path: "/kho" },
-    { name: "POS", path: "/pos" },
-    { name: "CSKH", path: "/cskh" },
-    { name: "Báo cáo", path: "/bao-cao" },
+    { label: "Dashboard", path: "/" },
+    { label: "Khách hàng", path: "/khach-hang" },
+    { label: "Lịch hẹn", path: "/lich-hen" },
+    { label: "Liệu trình", path: "/lieu-trinh" },
+    { label: "Kho", path: "/kho" },
+    { label: "POS", path: "/pos" },
+    { label: "CSKH", path: "/cskh" },
+    { label: "Báo cáo", path: "/bao-cao" },
   ];
 
   return (
-    <div className="layout">
-      {/* Sidebar */}
+    <div className="layout-container">
       <aside className="sidebar">
-        <div className="logo-block">
-          <div className="logo-placeholder"></div>
-          <div className="logo-text">SPA LOGO</div>
-        </div>
+        <div className="sidebar-logo">SPA LOGO</div>
 
-        <nav className="menu-list">
+        <nav className="sidebar-menu">
           {menu.map((item) => (
-            <Link key={item.path} href={item.path}>
-              <div
+            <Link key={item.path} href={item.path} legacyBehavior>
+              <a
                 className={
                   router.pathname === item.path
                     ? "menu-item active"
                     : "menu-item"
                 }
               >
-                {item.name}
-              </div>
+                {item.label}
+              </a>
             </Link>
           ))}
         </nav>
       </aside>
 
-      {/* Nội dung */}
-      <main className="content">{children}</main>
+      <main className="main-content">{children}</main>
     </div>
   );
 }
