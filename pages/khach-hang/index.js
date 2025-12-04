@@ -1,10 +1,7 @@
 // pages/khach-hang/index.js
-import React from "react";
-import Link from "next/link";
-import styles from "./khachhang.module.css";
+import Layout from "../../components/Layout";
 
 export default function KhachHangPage() {
-  // Dữ liệu mẫu (sau sẽ thay bằng Supabase)
   const customers = [
     {
       id: 1,
@@ -39,101 +36,120 @@ export default function KhachHangPage() {
   ];
 
   return (
-    <div className={styles.page}>
-      {/* SIDEBAR */}
-      <div className={styles.sidebar}>
-        <div className={styles.logoBox}>
-          <div className={styles.logoPlaceholder}></div>
-          <div className={styles.logoText}>SPA LOGO</div>
-        </div>
+    <Layout>
+      <div>
+        <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 24 }}>
+          Quản lý khách hàng
+        </h1>
 
-        <div className={styles.menu}>
-          <Link href="/" className={styles.menuItem}>
-            Dashboard
-          </Link>
-
-          <Link
-            href="/khach-hang"
-            className={`${styles.menuItem} ${styles.active}`}
-          >
-            Khách hàng
-          </Link>
-
-          <Link href="#" className={styles.menuItem}>
-            Lịch hẹn
-          </Link>
-
-          <Link href="#" className={styles.menuItem}>
-            Liệu trình
-          </Link>
-
-          <Link href="#" className={styles.menuItem}>
-            Kho
-          </Link>
-
-          <Link href="#" className={styles.menuItem}>
-            POS
-          </Link>
-
-          <Link href="#" className={styles.menuItem}>
-            CSKH
-          </Link>
-
-          <Link href="#" className={styles.menuItem}>
-            Báo cáo
-          </Link>
-        </div>
-      </div>
-
-      {/* MAIN CONTENT */}
-      <div className={styles.main}>
-        <h1 className={styles.title}>Quản lý khách hàng</h1>
-
-        {/* Toolbar */}
-        <div className={styles.toolbar}>
+        {/* Thanh công cụ */}
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            marginBottom: 20,
+            alignItems: "center",
+          }}
+        >
           <input
-            className={styles.search}
             placeholder="Tìm theo tên hoặc số điện thoại..."
+            style={{
+              flex: 1,
+              padding: "10px 14px",
+              borderRadius: 999,
+              border: "1px solid #ddd",
+              outline: "none",
+              fontSize: 14,
+            }}
           />
-          <select className={styles.select}>
+          <select
+            style={{
+              padding: "10px 14px",
+              borderRadius: 999,
+              border: "1px solid #ddd",
+              fontSize: 14,
+            }}
+          >
             <option>Tất cả</option>
-            <option>Nữ</option>
-            <option>Nam</option>
+            <option>VIP</option>
+            <option>Khách mới</option>
+            <option>Khách quen</option>
           </select>
-
-          <button className={styles.addBtn}>+ Thêm khách hàng</button>
+          <button
+            style={{
+              padding: "10px 18px",
+              borderRadius: 999,
+              border: "none",
+              background: "#f973b4",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+            }}
+          >
+            + Thêm khách hàng
+          </button>
         </div>
 
-        {/* CARD + TABLE */}
-        <div className={styles.card}>
-          <table className={styles.table}>
+        {/* Bảng khách hàng */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 20,
+            padding: 20,
+            boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
+          }}
+        >
+          <table
+            style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}
+          >
             <thead>
-              <tr>
-                <th>Tên khách</th>
-                <th>Số điện thoại</th>
-                <th>Giới tính</th>
-                <th>Tag</th>
-                <th>Tổng chi tiêu</th>
-                <th>Lần đến</th>
-                <th>Gần nhất</th>
-                <th>Thao tác</th>
+              <tr style={{ background: "#ffe2ee" }}>
+                <th style={th}>Tên khách</th>
+                <th style={th}>Số điện thoại</th>
+                <th style={th}>Giới tính</th>
+                <th style={th}>Tag</th>
+                <th style={th}>Tổng chi tiêu</th>
+                <th style={th}>Lần đến</th>
+                <th style={th}>Gần nhất</th>
+                <th style={th}>Thao tác</th>
               </tr>
             </thead>
-
             <tbody>
               {customers.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.name}</td>
-                  <td>{c.phone}</td>
-                  <td>{c.gender}</td>
-                  <td>
-                    <span className={styles.tag}>{c.tag}</span>
+                <tr key={c.id} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={td}>{c.name}</td>
+                  <td style={td}>{c.phone}</td>
+                  <td style={td}>{c.gender}</td>
+                  <td style={td}>
+                    <span
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        background: "#ffd6e8",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {c.tag}
+                    </span>
                   </td>
-                  <td>{c.total}</td>
-                  <td>{c.visits}</td>
-                  <td>{c.last}</td>
-                  <td>
-                    <button className={styles.viewBtn}>Xem</button>
+                  <td style={td}>{c.total}</td>
+                  <td style={td}>{c.visits}</td>
+                  <td style={td}>{c.last}</td>
+                  <td style={td}>
+                    <button
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: 999,
+                        border: "1px solid #ddd",
+                        background: "#fff",
+                        cursor: "pointer",
+                        fontSize: 13,
+                      }}
+                    >
+                      Xem
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -141,6 +157,16 @@ export default function KhachHangPage() {
           </table>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
+
+const th = {
+  padding: "10px 12px",
+  textAlign: "left",
+  fontWeight: 600,
+};
+
+const td = {
+  padding: "10px 12px",
+};
