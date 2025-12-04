@@ -1,15 +1,20 @@
 /* styles/sidebar.css */
+
+/* Layout tổng: sidebar + nội dung bên phải */
+.app-layout {
+  display: flex;
+}
+
+/* Sidebar bên trái */
 .sidebar {
   width: 240px;
   min-height: 100vh;
   background: #f7c7d9;
   padding: 20px 15px;
-  position: fixed;
-  top: 0;
-  left: 0;
   box-sizing: border-box;
 }
 
+/* Logo */
 .sidebar .logo {
   width: 100%;
   height: 180px;
@@ -18,6 +23,7 @@
   margin-bottom: 20px;
 }
 
+/* Danh sách menu */
 .sidebar ul {
   list-style: none;
   padding: 0;
@@ -28,6 +34,7 @@
   margin-bottom: 12px;
 }
 
+/* Link menu */
 .sidebar ul li a {
   display: block;
   padding: 12px 15px;
@@ -39,11 +46,20 @@
   font-weight: 500;
 }
 
+/* Hover */
 .sidebar ul li a:hover {
   background: #e9a8c2;
 }
 
+/* Active */
 .sidebar ul li a.active {
   background: #e289b6;
   color: white;
+}
+
+/* Nội dung bên phải */
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  box-sizing: border-box;
 }
