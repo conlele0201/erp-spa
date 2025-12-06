@@ -1,5 +1,5 @@
 // pages/khach-hang/index.js
-import Link from "next/link";
+
 import Layout from "../../components/Layout";
 
 export default function KhachHangPage() {
@@ -63,7 +63,6 @@ export default function KhachHangPage() {
               fontSize: 14,
             }}
           />
-
           <select
             style={{
               padding: "10px 14px",
@@ -78,23 +77,23 @@ export default function KhachHangPage() {
             <option>Khách quen</option>
           </select>
 
-          {/* NÚT THÊM KHÁCH HÀNG — FULL CODE CHUẨN */}
-          <Link href="/khach-hang/them">
-            <button
-              style={{
-                padding: "10px 18px",
-                borderRadius: 999,
-                border: "none",
-                background: "#f973b4",
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
-              + Thêm khách hàng
-            </button>
-          </Link>
+          {/* Điều hướng thêm khách hàng */}
+          <a
+            href="/khach-hang/them"
+            style={{
+              padding: "10px 18px",
+              borderRadius: 999,
+              border: "none",
+              background: "#f973b4",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+              textDecoration: "none",
+            }}
+          >
+            + Thêm khách hàng
+          </a>
         </div>
 
         {/* Bảng khách hàng */}
