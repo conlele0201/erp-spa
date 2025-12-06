@@ -1,295 +1,162 @@
-// pages/index.js
+// pages/khach-hang/index.js
+import Link from "next/link";
+import Layout from "../../components/Layout";
 
-export default function DashboardPage() {
-  const todayAppointments = [
+export default function KhachHangPage() {
+  const customers = [
     {
-      time: "09:00 – Ngọc Anh",
-      service: "Chăm sóc da mặt • KT: Linh",
-      status: "Đang làm",
-      statusColor: "#22c55e",
-      statusTextColor: "#ffffff",
+      id: 1,
+      name: "Ngọc Anh",
+      phone: "0901234567",
+      gender: "Nữ",
+      tag: "VIP",
+      total: "12,500,000đ",
+      visits: 8,
+      last: "02/12/2025",
     },
     {
-      time: "10:30 – Thu Trang",
-      service: "Giảm béo bụng • KT: Hà",
-      status: "Chờ",
-      statusColor: "#fbbf24",
-      statusTextColor: "#000000",
+      id: 2,
+      name: "Minh Khoa",
+      phone: "0938765432",
+      gender: "Nam",
+      tag: "Khách mới",
+      total: "4,200,000đ",
+      visits: 3,
+      last: "28/11/2025",
     },
     {
-      time: "13:00 – Trúc Ly",
-      service: "Điều trị mụn • KT: Mai",
-      status: "Hoàn tất",
-      statusColor: "#3b82f6",
-      statusTextColor: "#ffffff",
+      id: 3,
+      name: "Thu Hà",
+      phone: "0912345789",
+      gender: "Nữ",
+      tag: "Khách quen",
+      total: "7,800,000đ",
+      visits: 5,
+      last: "25/11/2025",
     },
-  ];
-
-  const roomStatus = [
-    { name: "Phòng 1", status: "Đang sử dụng" },
-    { name: "Phòng 2", status: "Trống" },
-    { name: "Phòng 3", status: "Đang sử dụng" },
-    { name: "Phòng 4", status: "Đang vệ sinh" },
   ];
 
   return (
-    <div>
-      {/* Tiêu đề */}
-      <h1
-        style={{
-          fontSize: 32,
-          fontWeight: 700,
-          marginBottom: 24,
-        }}
-      >
-        ERP SPA Dashboard
-      </h1>
+    <Layout>
+      <div>
+        <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 24 }}>
+          Quản lý khách hàng
+        </h1>
 
-      {/* Welcome + 3 ô KPI */}
-      <div
-        style={{
-          background: "#ffffff",
-          borderRadius: 24,
-          padding: 24,
-          marginBottom: 24,
-          boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: 22,
-            fontWeight: 700,
-            marginBottom: 8,
-          }}
-        >
-          Welcome to ERP SPA
-        </h2>
-        <p
-          style={{
-            marginBottom: 24,
-            color: "#6b7280",
-            fontSize: 14,
-          }}
-        >
-          Trang chủ hiển thị các widget, KPI, lịch hẹn và báo cáo nhanh của spa.
-        </p>
-
+        {/* Thanh công cụ */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-            gap: 16,
+            display: "flex",
+            gap: 12,
+            marginBottom: 20,
+            alignItems: "center",
           }}
         >
-          {/* KPI 1 */}
-          <div
+          <input
+            placeholder="Tìm theo tên hoặc số điện thoại..."
             style={{
-              background: "#ffffff",
-              borderRadius: 18,
-              padding: 18,
-              border: "1px solid #f3f4f6",
+              flex: 1,
+              padding: "10px 14px",
+              borderRadius: 999,
+              border: "1px solid #ddd",
+              outline: "none",
+              fontSize: 14,
             }}
-          >
-            <p
-              style={{
-                fontSize: 14,
-                color: "#6b7280",
-                marginBottom: 8,
-              }}
-            >
-              Khách hôm nay
-            </p>
-            <p
-              style={{
-                fontSize: 28,
-                fontWeight: 700,
-              }}
-            >
-              24
-            </p>
-          </div>
+          />
 
-          {/* KPI 2 */}
-          <div
+          <select
             style={{
-              background: "#ffffff",
-              borderRadius: 18,
-              padding: 18,
-              border: "1px solid #f3f4f6",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 14,
-                color: "#6b7280",
-                marginBottom: 8,
-              }}
-            >
-              Doanh thu hôm nay
-            </p>
-            <p
-              style={{
-                fontSize: 28,
-                fontWeight: 700,
-              }}
-            >
-              12,500,000đ
-            </p>
-          </div>
-
-          {/* KPI 3 */}
-          <div
-            style={{
-              background: "#ffffff",
-              borderRadius: 18,
-              padding: 18,
-              border: "1px solid #f3f4f6",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 14,
-                color: "#6b7280",
-                marginBottom: 8,
-              }}
-            >
-              Lịch hẹn sắp tới
-            </p>
-            <p
-              style={{
-                fontSize: 28,
-                fontWeight: 700,
-              }}
-            >
-              8
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 2 cột: Lịch hẹn hôm nay + Tình trạng phòng */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1.4fr",
-          gap: 24,
-        }}
-      >
-        {/* Lịch hẹn hôm nay */}
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: 24,
-            padding: 20,
-            boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              marginBottom: 16,
-            }}
-          >
-            Lịch hẹn hôm nay
-          </h3>
-
-          <div>
-            {todayAppointments.map((item, idx) => (
-              <div
-                key={idx}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "10px 0",
-                  borderBottom:
-                    idx === todayAppointments.length - 1
-                      ? "none"
-                      : "1px solid #f3f4f6",
-                }}
-              >
-                <div>
-                  <p
-                    style={{
-                      fontWeight: 600,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {item.time}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#6b7280",
-                    }}
-                  >
-                    {item.service}
-                  </p>
-                </div>
-                <span
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: 999,
-                    background: item.statusColor,
-                    color: item.statusTextColor,
-                    fontSize: 12,
-                    fontWeight: 600,
-                  }}
-                >
-                  {item.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Tình trạng phòng / giường */}
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: 24,
-            padding: 20,
-            boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              marginBottom: 16,
-            }}
-          >
-            Tình trạng phòng / giường
-          </h3>
-
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
+              padding: "10px 14px",
+              borderRadius: 999,
+              border: "1px solid #ddd",
               fontSize: 14,
             }}
           >
+            <option>Tất cả</option>
+            <option>VIP</option>
+            <option>Khách mới</option>
+            <option>Khách quen</option>
+          </select>
+
+          {/* NÚT THÊM KHÁCH HÀNG — FULL CODE CHUẨN */}
+          <Link href="/khach-hang/them">
+            <button
+              style={{
+                padding: "10px 18px",
+                borderRadius: 999,
+                border: "none",
+                background: "#f973b4",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              + Thêm khách hàng
+            </button>
+          </Link>
+        </div>
+
+        {/* Bảng khách hàng */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 20,
+            padding: 20,
+            boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
+          }}
+        >
+          <table
+            style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}
+          >
+            <thead>
+              <tr style={{ background: "#ffe2ee" }}>
+                <th style={th}>Tên khách</th>
+                <th style={th}>Số điện thoại</th>
+                <th style={th}>Giới tính</th>
+                <th style={th}>Tag</th>
+                <th style={th}>Tổng chi tiêu</th>
+                <th style={th}>Lần đến</th>
+                <th style={th}>Gần nhất</th>
+                <th style={th}>Thao tác</th>
+              </tr>
+            </thead>
+
             <tbody>
-              {roomStatus.map((room, idx) => (
-                <tr key={idx}>
-                  <td
-                    style={{
-                      padding: "10px 8px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {room.name}
+              {customers.map((c) => (
+                <tr key={c.id} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={td}>{c.name}</td>
+                  <td style={td}>{c.phone}</td>
+                  <td style={td}>{c.gender}</td>
+                  <td style={td}>
+                    <span
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        background: "#ffd6e8",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {c.tag}
+                    </span>
                   </td>
-                  <td
-                    style={{
-                      padding: "10px 8px",
-                      textAlign: "right",
-                      color:
-                        room.status === "Trống" ? "#22c55e" : "#111827",
-                    }}
-                  >
-                    {room.status}
+                  <td style={td}>{c.total}</td>
+                  <td style={td}>{c.visits}</td>
+                  <td style={td}>{c.last}</td>
+                  <td style={td}>
+                    <button
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: 999,
+                        border: "1px solid #ddd",
+                        background: "#fff",
+                        cursor: "pointer",
+                        fontSize: 13,
+                      }}
+                    >
+                      Xem
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -297,6 +164,16 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
+
+const th = {
+  padding: "10px 12px",
+  textAlign: "left",
+  fontWeight: 600,
+};
+
+const td = {
+  padding: "10px 12px",
+};
