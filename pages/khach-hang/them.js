@@ -1,30 +1,23 @@
 // pages/khach-hang/them.js
 
-export default function ThemKhachHang() {
+export default function ThemKhachHangPage() {
   return (
     <div>
-      {/* Tiêu đề */}
-      <h1
-        style={{
-          fontSize: 32,
-          fontWeight: 700,
-          marginBottom: 30,
-        }}
-      >
+      <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 24 }}>
         Thêm khách hàng
       </h1>
 
-      {/* Khung form */}
       <div
         style={{
           background: "#fff",
-          padding: 30,
           borderRadius: 24,
+          padding: 24,
           boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
-          maxWidth: 900,
+          maxWidth: 1200,
+          margin: "0 auto",
         }}
       >
-        {/* Hàng 1: Tên + SĐT */}
+        {/* Hàng 1: Tên khách + SĐT */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Tên khách hàng *</label>
@@ -43,8 +36,9 @@ export default function ThemKhachHang() {
             <label style={label}>Giới tính</label>
             <select style={input}>
               <option>Chọn giới tính</option>
-              <option>Nam</option>
               <option>Nữ</option>
+              <option>Nam</option>
+              <option>Khác</option>
             </select>
           </div>
 
@@ -55,8 +49,7 @@ export default function ThemKhachHang() {
               <option>VIP</option>
               <option>Khách mới</option>
               <option>Khách quen</option>
-              <option>Tiềm năng</option>
-              <option>Hay hủy lịch</option>
+              <option>Khách tiềm năng</option>
             </select>
           </div>
         </div>
@@ -73,98 +66,73 @@ export default function ThemKhachHang() {
             <select style={input}>
               <option>Không rõ</option>
               <option>Facebook</option>
-              <option>Zalo</option>
               <option>TikTok</option>
-              <option>Google</option>
-              <option>Khách cũ giới thiệu</option>
-              <option>Tự đến</option>
+              <option>Zalo</option>
+              <option>Đi ngang qua</option>
+              <option>Giới thiệu</option>
             </select>
           </div>
         </div>
 
-        {/* Hàng 4: Người giới thiệu */}
+        {/* Hàng 4: ĐỊA CHỈ — NEW!!! */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={label}>Địa chỉ</label>
+          <input
+            placeholder="VD: 123 Nguyễn Trãi, Phường 4, Quận 5, TP.HCM"
+            style={input}
+          />
+        </div>
+
+        {/* Hàng 5: Người giới thiệu */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Người giới thiệu</label>
           <input placeholder="Tên người giới thiệu (nếu có)" style={input} />
         </div>
 
-        {/* Hàng 5: Thông tin y khoa */}
+        {/* Hàng 6: Tình trạng da */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Tình trạng da</label>
-          <input placeholder="VD: Da dầu, mụn nhẹ, thâm..." style={input} />
+          <input
+            placeholder="VD: Da dầu, da khô, da nhạy cảm, mụn nhẹ..."
+            style={input}
+          />
         </div>
 
-        <div style={{ marginBottom: 20 }}>
-          <label style={label}>Dị ứng mỹ phẩm</label>
-          <input placeholder="VD: Dị ứng cồn, hương liệu..." style={input} />
-        </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <label style={label}>Thuốc đang sử dụng</label>
-          <input placeholder="VD: Thuốc trị mụn, corticoid..." style={input} />
-        </div>
-
-        {/* Ghi chú */}
-        <div style={{ marginBottom: 20 }}>
+        {/* Hàng cuối: Ghi chú */}
+        <div style={{ marginBottom: 30 }}>
           <label style={label}>Ghi chú</label>
           <textarea
             placeholder="Ghi chú thêm..."
             style={{
               ...input,
-              height: 140,
-              borderRadius: 16,
-              resize: "none",
-              paddingTop: 14,
+              height: 120,
+              resize: "vertical",
             }}
           />
         </div>
 
-        {/* Nút hành động */}
+        {/* Nút Lưu + Hủy */}
         <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            gap: 20,
-            marginTop: 30,
+            gap: 12,
+            marginTop: 20,
           }}
         >
-          <button
-            onClick={() => (window.location.href = "/khach-hang")}
-            style={{
-              padding: "12px 26px",
-              borderRadius: 999,
-              border: "1px solid #ddd",
-              background: "#fff",
-              cursor: "pointer",
-              fontSize: 15,
-            }}
-          >
-            Hủy
-          </button>
-
-          <button
-            style={{
-              padding: "12px 26px",
-              borderRadius: 999,
-              border: "none",
-              background: "#f973b4",
-              color: "#fff",
-              cursor: "pointer",
-              fontWeight: 600,
-              fontSize: 15,
-            }}
-          >
-            Lưu khách hàng
-          </button>
+          <button style={btnCancel}>Hủy</button>
+          <button style={btnPrimary}>Lưu khách hàng</button>
         </div>
       </div>
     </div>
   );
 }
 
+/* STYLE CHUẨN */
 const label = {
   display: "block",
   marginBottom: 6,
+  fontSize: 14,
   fontWeight: 600,
 };
 
@@ -175,5 +143,25 @@ const input = {
   border: "1px solid #ddd",
   outline: "none",
   fontSize: 14,
+};
+
+const btnPrimary = {
+  padding: "12px 22px",
+  borderRadius: 999,
+  border: "none",
+  background: "#f973b4",
+  color: "#fff",
+  fontSize: 15,
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
+const btnCancel = {
+  padding: "12px 22px",
+  borderRadius: 999,
+  border: "1px solid #ddd",
   background: "#fff",
+  fontSize: 15,
+  fontWeight: 600,
+  cursor: "pointer",
 };
