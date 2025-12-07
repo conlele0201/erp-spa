@@ -1,99 +1,52 @@
-// pages/khach-hang/them.js
-
 import { useState } from "react";
-import { useRouter } from "next/router";
-import { supabase } from "../../lib/supabaseClient"; // ĐƯỜNG DẪN ĐÚNG
+import supabase from "../../lib/supabaseClient";
 
 export default function ThemKhachHangPage() {
-  const router = useRouter();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
+  const [tag, setTag] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [source, setSource] = useState("");
+  const [address, setAddress] = useState("");
+  const [referrer, setReferrer] = useState("");
+  const [skinStatus, setSkinStatus] = useState("");
+  const [notes, setNotes] = useState("");
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    gender: "",
-    tag: "Không phân loại",
-    birth_date: "",
-    source: "Không rõ",
-    address: "",
-    referrer: "",
-    skin_status: "",
-    note: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-
-  function handleChange(field, value) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  }
-
-  function validate() {
-    if (!form.name.trim()) {
-      alert("Vui lòng nhập HỌ TÊN khách hàng.");
-      return false;
-    }
-
-    const phone = form.phone.trim();
-
-    // Chỉ cho phép số, độ dài 9–11 số
-    if (!/^[0-9]{9,11}$/.test(phone)) {
-      alert("Số điện thoại không hợp lệ. Chỉ nhập số, 9–11 ký tự.");
-      return false;
-    }
-
-    if (!form.gender) {
-      alert("Vui lòng chọn giới tính.");
-      return false;
-    }
-
-    if (!form.birth_date) {
-      alert("Vui lòng chọn ngày sinh.");
-      return false;
-    }
-
-    return true;
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!validate()) return;
+  const handleSave = async () => {
+    // VALIDATION
+    if (!name.trim()) return alert("Tên khách hàng không được bỏ trống!");
+    if (!phone.trim()) return alert("Số điện thoại không được bỏ trống!");
+    if (phone.length < 8) return alert("Số điện thoại không hợp lệ!");
 
     try {
-      setLoading(true);
-
       const { error } = await supabase.from("customers").insert([
         {
-          name: form.name.trim(),
-          phone: form.phone.trim(),
-          gender: form.gender,
-          tag: form.tag,
-          birth_date: form.birth_date || null,
-          source: form.source || null,
-          address: form.address || null,
-          referrer: form.referrer || null,
-          skin_status: form.skin_status || null,
-          note: form.note || null,
+          name,
+          phone,
+          gender,
+          tag,
+          birthday,
+          source,
+          address,
+          referrer,
+          skin_status: skinStatus,
+          notes,
         },
       ]);
 
       if (error) {
         console.error(error);
-        alert("Lưu khách hàng thất bại. Vui lòng thử lại.");
-        return;
+        return alert("Có lỗi xảy ra. Vui lòng thử lại.");
       }
 
-      alert("Lưu khách hàng thành công.");
-      router.push("/khach-hang");
+      alert("Đã lưu khách hàng thành công!");
+      window.location.href = "/khach-hang";
     } catch (err) {
       console.error(err);
       alert("Có lỗi xảy ra. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
     }
-  }
-
-  function handleCancel() {
-    router.push("/khach-hang");
-  }
+  };
 
   return (
     <div>
@@ -101,8 +54,7 @@ export default function ThemKhachHangPage() {
         Thêm khách hàng
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
+      <div
         style={{
           background: "#fff",
           borderRadius: 24,
@@ -112,16 +64,15 @@ export default function ThemKhachHangPage() {
           margin: "0 auto",
         }}
       >
-        {/* Hàng 1: Tên khách + SĐT */}
+        {/* Họ tên + SĐT */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Tên khách hàng *</label>
             <input
-              type="text"
               placeholder="Nhập tên khách hàng..."
               style={input}
-              value={form.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
@@ -129,22 +80,26 @@ export default function ThemKhachHangPage() {
             <label style={label}>Số điện thoại *</label>
             <input
               type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
               placeholder="VD: 0901234567"
               style={input}
-              value={form.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
+              value={phone}
+              onChange={(e) =>
+                setPhone(e.target.value.replace(/\D/g, ""))
+              }
             />
           </div>
         </div>
 
-        {/* Hàng 2: Giới tính + Tag */}
+        {/* Giới tính + Tag */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Giới tính *</label>
             <select
               style={input}
-              value={form.gender}
-              onChange={(e) => handleChange("gender", e.target.value)}
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
             >
               <option value="">Chọn giới tính</option>
               <option value="Nữ">Nữ</option>
@@ -157,27 +112,27 @@ export default function ThemKhachHangPage() {
             <label style={label}>Tag phân loại</label>
             <select
               style={input}
-              value={form.tag}
-              onChange={(e) => handleChange("tag", e.target.value)}
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
             >
-              <option value="Không phân loại">Không phân loại</option>
+              <option value="">Không phân loại</option>
               <option value="VIP">VIP</option>
               <option value="Khách mới">Khách mới</option>
               <option value="Khách quen">Khách quen</option>
-              <option value="Khách tiềm năng">Khách tiềm năng</option>
+              <option value="Tiềm năng">Khách tiềm năng</option>
             </select>
           </div>
         </div>
 
-        {/* Hàng 3: Ngày sinh + Nguồn khách */}
+        {/* Ngày sinh + Nguồn khách */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Ngày sinh *</label>
             <input
               type="date"
               style={input}
-              value={form.birth_date}
-              onChange={(e) => handleChange("birth_date", e.target.value)}
+              value={birthday}
+              onChange={(e) => setBirthday(e.target.value)}
             />
           </div>
 
@@ -185,10 +140,10 @@ export default function ThemKhachHangPage() {
             <label style={label}>Nguồn khách</label>
             <select
               style={input}
-              value={form.source}
-              onChange={(e) => handleChange("source", e.target.value)}
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
             >
-              <option value="Không rõ">Không rõ</option>
+              <option value="">Không rõ</option>
               <option value="Facebook">Facebook</option>
               <option value="TikTok">TikTok</option>
               <option value="Zalo">Zalo</option>
@@ -198,84 +153,62 @@ export default function ThemKhachHangPage() {
           </div>
         </div>
 
-        {/* Hàng 4: Địa chỉ */}
+        {/* Địa chỉ */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Địa chỉ</label>
           <input
-            type="text"
-            placeholder="VD: 123 Nguyễn Trãi, Phường 4, Quận 5, TP.HCM"
+            placeholder="VD: 123 Nguyễn Trãi..."
             style={input}
-            value={form.address}
-            onChange={(e) => handleChange("address", e.target.value)}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
           />
         </div>
 
-        {/* Hàng 5: Người giới thiệu */}
+        {/* Người giới thiệu */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Người giới thiệu</label>
           <input
-            type="text"
             placeholder="Tên người giới thiệu (nếu có)"
             style={input}
-            value={form.referrer}
-            onChange={(e) => handleChange("referrer", e.target.value)}
+            value={referrer}
+            onChange={(e) => setReferrer(e.target.value)}
           />
         </div>
 
-        {/* Hàng 6: Tình trạng da */}
+        {/* Tình trạng da */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Tình trạng da</label>
           <input
-            type="text"
-            placeholder="VD: Da dầu, da khô, da nhạy cảm, mụn nhẹ..."
+            placeholder="VD: Da dầu, da khô..."
             style={input}
-            value={form.skin_status}
-            onChange={(e) => handleChange("skin_status", e.target.value)}
+            value={skinStatus}
+            onChange={(e) => setSkinStatus(e.target.value)}
           />
         </div>
 
-        {/* Hàng cuối: Ghi chú */}
-        <div style={{ marginBottom: 30 }}>
+        {/* Ghi chú */}
+        <div style={{ marginBottom: 20 }}>
           <label style={label}>Ghi chú</label>
           <textarea
-            placeholder="Ghi chú thêm..."
-            style={{
-              ...input,
-              height: 120,
-              resize: "vertical",
-            }}
-            value={form.note}
-            onChange={(e) => handleChange("note", e.target.value)}
+            style={{ ...input, height: 120, resize: "vertical" }}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
 
-        {/* Nút Lưu + Hủy */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 12,
-            marginTop: 20,
-          }}
-        >
-          <button
-            type="button"
-            style={btnCancel}
-            onClick={handleCancel}
-            disabled={loading}
-          >
-            Hủy
-          </button>
-          <button type="submit" style={btnPrimary} disabled={loading}>
-            {loading ? "Đang lưu..." : "Lưu khách hàng"}
+        {/* Buttons */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+          <button style={btnCancel}>Hủy</button>
+          <button style={btnPrimary} onClick={handleSave}>
+            Lưu khách hàng
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
 
-/* STYLE CHUẨN – GIỮ NGUYÊN */
+/* STYLE */
 const label = {
   display: "block",
   marginBottom: 6,
