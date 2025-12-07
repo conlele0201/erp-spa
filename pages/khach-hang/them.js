@@ -1,47 +1,69 @@
-// pages/khach-hang/them.js
 import { useState } from "react";
-import supabase from "../../lib/supabaseClient";
+import { supabase } from "../../supabaseClient";
+import { useRouter } from "next/router";
 
 export default function ThemKhachHangPage() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState("");
-  const [tag, setTag] = useState("");
-  const [birthday, setBirthday] = useState("");
-  const [source, setSource] = useState("");
-  const [address, setAddress] = useState("");
-  const [referrer, setReferrer] = useState("");
-  const [skin, setSkin] = useState("");
-  const [note, setNote] = useState("");
+  const router = useRouter();
 
-  const handleSave = async () => {
-    if (!name || !phone) {
-      alert("Tên khách hàng và số điện thoại là bắt buộc!");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    gender: "",
+    tag: "",
+    birthday: "",
+    source: "",
+    address: "",
+    referral: "",
+    skin_status: "",
+    note: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (field, value) => {
+    setForm({ ...form, [field]: value });
+  };
+
+  const handleSubmit = async () => {
+    if (!form.name.trim()) {
+      alert("Tên khách hàng không được để trống!");
       return;
     }
 
-    const { error } = await supabase.from("customers").insert([
-      {
-        name,
-        phone,
-        gender,
-        tag,
-        birthday,
-        source,
-        address,
-        referrer,
-        skin_status: skin,
-        note,
-      },
-    ]);
+    if (!/^[0-9]{9,12}$/.test(form.phone)) {
+      alert("Số điện thoại phải là số và từ 9–12 ký tự!");
+      return;
+    }
+
+    if (form.birthday && !/^\d{4}-\d{2}-\d{2}$/.test(form.birthday)) {
+      alert("Ngày sinh phải đúng định dạng YYYY-MM-DD!");
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.from("customers").insert({
+      name: form.name,
+      phone: form.phone,
+      gender: form.gender,
+      tag: form.tag,
+      birthday: form.birthday || null,
+      source: form.source,
+      address: form.address,
+      referral: form.referral,
+      skin_status: form.skin_status,
+      note: form.note,
+    });
+
+    setLoading(false);
 
     if (error) {
-      console.error(error);
-      alert("Lỗi khi lưu khách hàng!");
-    } else {
-      alert("Lưu thành công!");
-      window.location.href = "/khach-hang";
+      alert("Lỗi khi lưu: " + error.message);
+      return;
     }
+
+    alert("Lưu khách hàng thành công!");
+    router.push("/khach-hang");
   };
 
   return (
@@ -60,15 +82,15 @@ export default function ThemKhachHangPage() {
           margin: "0 auto",
         }}
       >
-        {/* Hàng 1: Tên khách + SĐT */}
+        {/* Hàng 1 */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Tên khách hàng *</label>
             <input
               placeholder="Nhập tên khách hàng..."
               style={input}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={form.name}
+              onChange={(e) => handleChange("name", e.target.value)}
             />
           </div>
 
@@ -77,25 +99,25 @@ export default function ThemKhachHangPage() {
             <input
               placeholder="VD: 0901234567"
               style={input}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={form.phone}
+              onChange={(e) => handleChange("phone", e.target.value.replace(/\D/g, ""))}
             />
           </div>
         </div>
 
-        {/* Hàng 2: Giới tính + Tag */}
+        {/* Hàng 2 */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Giới tính</label>
             <select
               style={input}
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
+              value={form.gender}
+              onChange={(e) => handleChange("gender", e.target.value)}
             >
               <option value="">Chọn giới tính</option>
-              <option value="Nữ">Nữ</option>
-              <option value="Nam">Nam</option>
-              <option value="Khác">Khác</option>
+              <option>Nữ</option>
+              <option>Nam</option>
+              <option>Khác</option>
             </select>
           </div>
 
@@ -103,27 +125,27 @@ export default function ThemKhachHangPage() {
             <label style={label}>Tag phân loại</label>
             <select
               style={input}
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
+              value={form.tag}
+              onChange={(e) => handleChange("tag", e.target.value)}
             >
-              <option value="">Không phân loại</option>
-              <option value="VIP">VIP</option>
-              <option value="Khách mới">Khách mới</option>
-              <option value="Khách quen">Khách quen</option>
-              <option value="Tiềm năng">Khách tiềm năng</option>
+              <option>Không phân loại</option>
+              <option>VIP</option>
+              <option>Khách mới</option>
+              <option>Khách quen</option>
+              <option>Khách tiềm năng</option>
             </select>
           </div>
         </div>
 
-        {/* Hàng 3: Ngày sinh + Nguồn khách */}
+        {/* Hàng 3 */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Ngày sinh</label>
             <input
-              placeholder="dd/mm/yyyy"
+              type="date"
               style={input}
-              value={birthday}
-              onChange={(e) => setBirthday(e.target.value)}
+              value={form.birthday}
+              onChange={(e) => handleChange("birthday", e.target.value)}
             />
           </div>
 
@@ -131,49 +153,49 @@ export default function ThemKhachHangPage() {
             <label style={label}>Nguồn khách</label>
             <select
               style={input}
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
+              value={form.source}
+              onChange={(e) => handleChange("source", e.target.value)}
             >
-              <option value="">Không rõ</option>
-              <option value="Facebook">Facebook</option>
-              <option value="TikTok">TikTok</option>
-              <option value="Zalo">Zalo</option>
-              <option value="Đi ngang qua">Đi ngang qua</option>
-              <option value="Giới thiệu">Giới thiệu</option>
+              <option>Không rõ</option>
+              <option>Facebook</option>
+              <option>TikTok</option>
+              <option>Zalo</option>
+              <option>Đi ngang qua</option>
+              <option>Giới thiệu</option>
             </select>
           </div>
         </div>
 
-        {/* Hàng 4: Địa chỉ */}
+        {/* Địa chỉ */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Địa chỉ</label>
           <input
-            placeholder="VD: 123 Nguyễn Trãi, Phường 4, Quận 5, TP.HCM"
+            placeholder="VD: 123 Nguyễn Trãi, Quận 5..."
             style={input}
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={form.address}
+            onChange={(e) => handleChange("address", e.target.value)}
           />
         </div>
 
-        {/* Hàng 5: Người giới thiệu */}
+        {/* Người giới thiệu */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Người giới thiệu</label>
           <input
-            placeholder="Tên người giới thiệu (nếu có)"
+            placeholder="Tên người giới thiệu"
             style={input}
-            value={referrer}
-            onChange={(e) => setReferrer(e.target.value)}
+            value={form.referral}
+            onChange={(e) => handleChange("referral", e.target.value)}
           />
         </div>
 
-        {/* Hàng 6: Tình trạng da */}
+        {/* Tình trạng da */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Tình trạng da</label>
           <input
-            placeholder="VD: Da dầu, da khô, da nhạy cảm..."
+            placeholder="VD: Da dầu, da khô..."
             style={input}
-            value={skin}
-            onChange={(e) => setSkin(e.target.value)}
+            value={form.skin_status}
+            onChange={(e) => handleChange("skin_status", e.target.value)}
           />
         </div>
 
@@ -183,12 +205,12 @@ export default function ThemKhachHangPage() {
           <textarea
             placeholder="Ghi chú thêm..."
             style={{ ...input, height: 120, resize: "vertical" }}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
+            value={form.note}
+            onChange={(e) => handleChange("note", e.target.value)}
           />
         </div>
 
-        {/* Nút Lưu + Hủy */}
+        {/* Buttons */}
         <div
           style={{
             display: "flex",
@@ -197,9 +219,11 @@ export default function ThemKhachHangPage() {
             marginTop: 20,
           }}
         >
-          <button style={btnCancel}>Hủy</button>
-          <button style={btnPrimary} onClick={handleSave}>
-            Lưu khách hàng
+          <button style={btnCancel} onClick={() => router.push("/khach-hang")}>
+            Hủy
+          </button>
+          <button style={btnPrimary} onClick={handleSubmit} disabled={loading}>
+            {loading ? "Đang lưu..." : "Lưu khách hàng"}
           </button>
         </div>
       </div>
@@ -207,7 +231,6 @@ export default function ThemKhachHangPage() {
   );
 }
 
-/* STYLE CHUẨN */
 const label = {
   display: "block",
   marginBottom: 6,
