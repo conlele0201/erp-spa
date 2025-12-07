@@ -1,6 +1,6 @@
 // pages/khach-hang/them.js
 import { useState } from "react";
-import supabase from "../../supabaseClient";
+import supabase from "../../lib/supabaseClient";
 
 export default function ThemKhachHangPage() {
   const [name, setName] = useState("");
@@ -60,7 +60,7 @@ export default function ThemKhachHangPage() {
           margin: "0 auto",
         }}
       >
-        {/* Hàng 1 */}
+        {/* Hàng 1: Tên khách + SĐT */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Tên khách hàng *</label>
@@ -83,7 +83,7 @@ export default function ThemKhachHangPage() {
           </div>
         </div>
 
-        {/* Hàng 2 */}
+        {/* Hàng 2: Giới tính + Tag */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Giới tính</label>
@@ -115,7 +115,7 @@ export default function ThemKhachHangPage() {
           </div>
         </div>
 
-        {/* Hàng 3 */}
+        {/* Hàng 3: Ngày sinh + Nguồn khách */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
             <label style={label}>Ngày sinh</label>
@@ -148,14 +148,14 @@ export default function ThemKhachHangPage() {
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Địa chỉ</label>
           <input
-            placeholder="VD: 123 Nguyễn Trãi, Q5, TP.HCM"
+            placeholder="VD: 123 Nguyễn Trãi, Phường 4, Quận 5, TP.HCM"
             style={input}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
           />
         </div>
 
-        {/* Hàng 5 */}
+        {/* Hàng 5: Người giới thiệu */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Người giới thiệu</label>
           <input
@@ -166,11 +166,11 @@ export default function ThemKhachHangPage() {
           />
         </div>
 
-        {/* Hàng 6 */}
+        {/* Hàng 6: Tình trạng da */}
         <div style={{ marginBottom: 20 }}>
           <label style={label}>Tình trạng da</label>
           <input
-            placeholder="VD: Da dầu, da khô..."
+            placeholder="VD: Da dầu, da khô, da nhạy cảm..."
             style={input}
             value={skin}
             onChange={(e) => setSkin(e.target.value)}
@@ -188,7 +188,7 @@ export default function ThemKhachHangPage() {
           />
         </div>
 
-        {/* Buttons */}
+        {/* Nút Lưu + Hủy */}
         <div
           style={{
             display: "flex",
@@ -207,7 +207,7 @@ export default function ThemKhachHangPage() {
   );
 }
 
-/* STYLE */
+/* STYLE CHUẨN */
 const label = {
   display: "block",
   marginBottom: 6,
