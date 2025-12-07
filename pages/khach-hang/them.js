@@ -1,216 +1,115 @@
 // pages/khach-hang/them.js
+
 import { useState } from "react";
 import { useRouter } from "next/router";
-import supabase from "../../lib/supabaseClient";
 
-export default function ThemKhachHangPage() {
+export default function ThemKhachHang() {
   const router = useRouter();
 
   const [form, setForm] = useState({
     name: "",
     phone: "",
     gender: "",
-    tag: "Không phân loại",
+    tag: "",
     birthday: "",
     address: "",
     source: "",
-    referrer: "",
     skin_condition: "",
     notes: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (field) => (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: e.target.value,
-    }));
+  const updateField = (field, value) => {
+    setForm({ ...form, [field]: value });
   };
 
-  // Chuyển dd/mm/yyyy -> yyyy-mm-dd
-  const parseBirthday = (value) => {
-    if (!value) return null;
-    const parts = value.split("/").map((p) => p.trim());
-    if (parts.length !== 3) return null;
-    const [dd, mm, yyyy] = parts;
-    if (!dd || !mm || !yyyy) return null;
-    // kiểm tra số cơ bản
-    if (
-      isNaN(Number(dd)) ||
-      isNaN(Number(mm)) ||
-      isNaN(Number(yyyy)) ||
-      dd.length > 2 ||
-      mm.length > 2 ||
-      yyyy.length !== 4
-    ) {
-      return null;
-    }
-    return `${yyyy.padStart(4, "0")}-${mm.padStart(2, "0")}-${dd.padStart(
-      2,
-      "0"
-    )}`;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return;
-
-    // Validate cơ bản
-    if (!form.name.trim()) {
-      alert("Vui lòng nhập tên khách hàng.");
-      return;
-    }
-    if (!form.phone.trim()) {
-      alert("Vui lòng nhập số điện thoại.");
-      return;
-    }
-
-    // Chỉ cho số, 8–15 ký tự
-    const phoneClean = form.phone.replace(/\s+/g, "");
-    if (!/^[0-9]{8,15}$/.test(phoneClean)) {
-      alert("Số điện thoại chỉ được chứa số (8–15 chữ số).");
-      return;
-    }
-
-    const birthdayISO = parseBirthday(form.birthday);
-    if (form.birthday && !birthdayISO) {
-      alert("Ngày sinh không đúng định dạng dd/mm/yyyy.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const { error } = await supabase.from("customers").insert([
-        {
-          name: form.name.trim(),
-          phone: phoneClean,
-          gender: form.gender || null,
-          tag: form.tag || null,
-          birthday: birthdayISO, // null nếu không nhập
-          address: form.address || null,
-          source: form.source || null,
-          referrer: form.referrer || null,
-          skin_condition: form.skin_condition || null,
-          notes: form.notes || null,
-          // total_spent, visits, last_visit, created_at, updated_at dùng default trong DB
-        },
-      ]);
-
-      if (error) {
-        console.error("Supabase insert error:", error);
-        alert("Có lỗi xảy ra khi lưu khách hàng. Vui lòng thử lại.");
-        return;
-      }
-
-      alert("Lưu khách hàng thành công.");
-      router.push("/khach-hang");
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      alert("Có lỗi xảy ra. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    router.push("/khach-hang");
+  const handleSave = () => {
+    alert("Mock layout – chưa nối Supabase. Anh duyệt layout trước.");
   };
 
   return (
-    <div>
-      <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 24 }}>
-        Thêm khách hàng
-      </h1>
+    <div style={wrapper}>
+      <h1 style={title}>Thêm khách hàng</h1>
+      <p style={subtitle}>Nhập thông tin hồ sơ khách hàng đầy đủ & chính xác.</p>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          background: "#fff",
-          borderRadius: 24,
-          padding: 24,
-          boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
-          maxWidth: 1200,
-          margin: "0 auto",
-        }}
-      >
-        {/* Hàng 1: Tên khách + SĐT */}
-        <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-          <div style={{ flex: 1 }}>
+      <div style={card}>
+        <div style={grid2}>
+
+          {/* Tên khách */}
+          <div style={fieldBox}>
             <label style={label}>Tên khách hàng *</label>
             <input
-              placeholder="Nhập tên khách hàng..."
               style={input}
               value={form.name}
-              onChange={handleChange("name")}
+              onChange={(e) => updateField("name", e.target.value)}
+              placeholder="VD: Ngọc Anh"
             />
           </div>
 
-          <div style={{ flex: 1 }}>
+          {/* Số điện thoại */}
+          <div style={fieldBox}>
             <label style={label}>Số điện thoại *</label>
             <input
-              placeholder="VD: 0901234567"
               style={input}
               type="tel"
+              pattern="[0-9]*"
               value={form.phone}
-              onChange={handleChange("phone")}
+              onChange={(e) =>
+                updateField("phone", e.target.value.replace(/\D/g, ""))
+              }
+              placeholder="VD: 0901234567"
             />
           </div>
-        </div>
 
-        {/* Hàng 2: Giới tính + Tag */}
-        <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-          <div style={{ flex: 1 }}>
+          {/* Giới tính */}
+          <div style={fieldBox}>
             <label style={label}>Giới tính *</label>
             <select
-              style={input}
+              style={select}
               value={form.gender}
-              onChange={handleChange("gender")}
+              onChange={(e) => updateField("gender", e.target.value)}
             >
               <option value="">Chọn giới tính</option>
               <option value="Nữ">Nữ</option>
               <option value="Nam">Nam</option>
-              <option value="Khác">Khác</option>
             </select>
           </div>
 
-          <div style={{ flex: 1 }}>
+          {/* Tag phân loại */}
+          <div style={fieldBox}>
             <label style={label}>Tag phân loại</label>
             <select
-              style={input}
+              style={select}
               value={form.tag}
-              onChange={handleChange("tag")}
+              onChange={(e) => updateField("tag", e.target.value)}
             >
-              <option value="Không phân loại">Không phân loại</option>
+              <option value="">Không phân loại</option>
               <option value="VIP">VIP</option>
               <option value="Khách mới">Khách mới</option>
               <option value="Khách quen">Khách quen</option>
               <option value="Khách tiềm năng">Khách tiềm năng</option>
             </select>
           </div>
-        </div>
 
-        {/* Hàng 3: Ngày sinh + Nguồn khách */}
-        <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-          <div style={{ flex: 1 }}>
-            <label style={label}>Ngày sinh *</label>
+          {/* Ngày sinh */}
+          <div style={fieldBox}>
+            <label style={label}>Ngày sinh</label>
             <input
-              placeholder="dd/mm/yyyy"
               style={input}
+              type="date"
               value={form.birthday}
-              onChange={handleChange("birthday")}
+              onChange={(e) => updateField("birthday", e.target.value)}
             />
           </div>
 
-          <div style={{ flex: 1 }}>
+          {/* Nguồn khách */}
+          <div style={fieldBox}>
             <label style={label}>Nguồn khách</label>
             <select
-              style={input}
+              style={select}
               value={form.source}
-              onChange={handleChange("source")}
+              onChange={(e) => updateField("source", e.target.value)}
             >
-              <option value="">Không rõ</option>
+              <option value="">Chọn nguồn khách</option>
               <option value="Facebook">Facebook</option>
               <option value="TikTok">TikTok</option>
               <option value="Zalo">Zalo</option>
@@ -220,114 +119,128 @@ export default function ThemKhachHangPage() {
           </div>
         </div>
 
-        {/* Hàng 4: Địa chỉ */}
-        <div style={{ marginBottom: 20 }}>
+        {/* Địa chỉ */}
+        <div style={fieldBox}>
           <label style={label}>Địa chỉ</label>
           <input
-            placeholder="VD: 123 Nguyễn Trãi, Phường 4, Quận 5, TP.HCM"
             style={input}
             value={form.address}
-            onChange={handleChange("address")}
+            onChange={(e) => updateField("address", e.target.value)}
+            placeholder="VD: 123 Nguyễn Trãi, Quận 1"
           />
         </div>
 
-        {/* Hàng 5: Người giới thiệu */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={label}>Người giới thiệu</label>
-          <input
-            placeholder="Tên người giới thiệu (nếu có)"
-            style={input}
-            value={form.referrer}
-            onChange={handleChange("referrer")}
-          />
-        </div>
-
-        {/* Hàng 6: Tình trạng da */}
-        <div style={{ marginBottom: 20 }}>
+        {/* Tình trạng da */}
+        <div style={fieldBox}>
           <label style={label}>Tình trạng da</label>
           <input
-            placeholder="VD: Da dầu, da khô, da nhạy cảm, mụn nhẹ..."
             style={input}
             value={form.skin_condition}
-            onChange={handleChange("skin_condition")}
+            onChange={(e) => updateField("skin_condition", e.target.value)}
+            placeholder="VD: Da dầu, da nhạy cảm..."
           />
         </div>
 
-        {/* Hàng cuối: Ghi chú */}
-        <div style={{ marginBottom: 30 }}>
+        {/* Ghi chú */}
+        <div style={fieldBox}>
           <label style={label}>Ghi chú</label>
           <textarea
-            placeholder="Ghi chú thêm..."
-            style={{
-              ...input,
-              height: 120,
-              resize: "vertical",
-            }}
+            style={textarea}
+            rows={4}
             value={form.notes}
-            onChange={handleChange("notes")}
+            onChange={(e) => updateField("notes", e.target.value)}
+            placeholder="Ghi chú thêm (nếu có)"
           />
         </div>
 
-        {/* Nút Lưu + Hủy */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 12,
-            marginTop: 20,
-          }}
-        >
-          <button
-            type="button"
-            style={btnCancel}
-            onClick={handleCancel}
-            disabled={loading}
-          >
+        {/* Nút */}
+        <div style={actionRow}>
+          <button style={cancelButton} onClick={() => router.push("/khach-hang")}>
             Hủy
           </button>
-          <button type="submit" style={btnPrimary} disabled={loading}>
-            {loading ? "Đang lưu..." : "Lưu khách hàng"}
+          <button style={saveButton} onClick={handleSave}>
+            Lưu khách hàng
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
 
-/* STYLE CHUẨN */
-const label = {
-  display: "block",
-  marginBottom: 6,
-  fontSize: 14,
-  fontWeight: 600,
+/* =========================
+     STYLE
+========================= */
+
+const wrapper = { padding: "24px" };
+const title = { fontSize: 28, fontWeight: 700, marginBottom: 4 };
+const subtitle = { color: "#6b7280", marginBottom: 24 };
+
+const card = {
+  background: "#ffffff",
+  padding: 28,
+  borderRadius: 20,
+  boxShadow: "0 15px 40px rgba(0,0,0,0.06)",
 };
+
+const grid2 = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 20,
+  marginBottom: 20,
+};
+
+const fieldBox = { display: "flex", flexDirection: "column", gap: 6 };
+
+const label = { fontWeight: 600, fontSize: 14, color: "#374151" };
 
 const input = {
-  width: "100%",
   padding: "12px 16px",
-  borderRadius: 999,
-  border: "1px solid #ddd",
-  outline: "none",
+  borderRadius: 12,
+  border: "1px solid #e5e7eb",
+  background: "#f9fafb",
   fontSize: 14,
 };
 
-const btnPrimary = {
-  padding: "12px 22px",
-  borderRadius: 999,
-  border: "none",
-  background: "#f973b4",
-  color: "#fff",
-  fontSize: 15,
-  fontWeight: 700,
-  cursor: "pointer",
+const select = {
+  padding: "12px 16px",
+  borderRadius: 12,
+  border: "1px solid #e5e7eb",
+  background: "#ffffff",
+  fontSize: 14,
 };
 
-const btnCancel = {
-  padding: "12px 22px",
+const textarea = {
+  padding: "12px 16px",
+  borderRadius: 12,
+  border: "1px solid #e5e7eb",
+  background: "#f9fafb",
+  fontSize: 14,
+};
+
+const actionRow = {
+  display: "flex",
+  justifyContent: "flex-end",
+  gap: 12,
+  marginTop: 20,
+};
+
+const cancelButton = {
+  padding: "12px 24px",
   borderRadius: 999,
-  border: "1px solid #ddd",
-  background: "#fff",
-  fontSize: 15,
+  border: "1px solid #e5e7eb",
+  background: "#ffffff",
+  cursor: "pointer",
+  fontSize: 14,
+  fontWeight: 500,
+};
+
+const saveButton = {
+  padding: "12px 24px",
+  borderRadius: 999,
+  border: "none",
+  background: "#f5c451",
   fontWeight: 600,
   cursor: "pointer",
+  fontSize: 14,
+  boxShadow: "0 10px 25px rgba(245,196,81,0.35)",
 };
