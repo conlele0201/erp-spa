@@ -1,7 +1,7 @@
 // pages/khach-hang/them.js
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function ThemKhachHang() {
   const router = useRouter();
@@ -49,7 +49,7 @@ export default function ThemKhachHang() {
     });
 
     if (error) {
-      console.log(error);
+      console.error(error);
       alert("Lỗi khi lưu khách hàng!");
     } else {
       alert("Đã lưu khách hàng!");
@@ -71,7 +71,7 @@ export default function ThemKhachHang() {
           boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
         }}
       >
-        {/* --- Dòng 1: Tên + SĐT --- */}
+        {/* Dòng 1: Tên + SĐT */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <input
             name="name"
@@ -89,7 +89,7 @@ export default function ThemKhachHang() {
           />
         </div>
 
-        {/* --- Dòng 2: Giới tính + Tag --- */}
+        {/* Dòng 2: Giới tính + Tag */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <select name="gender" value={form.gender} onChange={handleChange} style={input}>
             <option value="">Chọn giới tính</option>
@@ -106,7 +106,7 @@ export default function ThemKhachHang() {
           </select>
         </div>
 
-        {/* --- Ngày sinh --- */}
+        {/* Ngày sinh */}
         <div style={{ marginBottom: 20 }}>
           <input
             type="date"
@@ -117,7 +117,7 @@ export default function ThemKhachHang() {
           />
         </div>
 
-        {/* --- Địa chỉ --- */}
+        {/* Địa chỉ */}
         <div style={{ marginBottom: 20 }}>
           <input
             name="address"
@@ -128,7 +128,7 @@ export default function ThemKhachHang() {
           />
         </div>
 
-        {/* --- Người giới thiệu + Nguồn khách --- */}
+        {/* Người giới thiệu + Nguồn khách */}
         <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
           <input
             name="referrer"
@@ -148,7 +148,7 @@ export default function ThemKhachHang() {
           </select>
         </div>
 
-        {/* --- Tình trạng da --- */}
+        {/* Tình trạng da */}
         <div style={{ marginBottom: 20 }}>
           <input
             name="skin_condition"
@@ -159,7 +159,7 @@ export default function ThemKhachHang() {
           />
         </div>
 
-        {/* --- Ghi chú --- */}
+        {/* Ghi chú */}
         <textarea
           name="notes"
           placeholder="Ghi chú thêm..."
@@ -168,8 +168,15 @@ export default function ThemKhachHang() {
           style={{ ...input, height: 120, resize: "none" }}
         ></textarea>
 
-        {/* --- Nút --- */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 30, gap: 20 }}>
+        {/* Nút */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 30,
+            gap: 20,
+          }}
+        >
           <button
             onClick={() => router.push("/khach-hang")}
             style={{
