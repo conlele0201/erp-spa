@@ -2,245 +2,332 @@
 
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { supabase } from "../../lib/supabaseClient"; // ĐÚNG đường dẫn: /lib/supabaseClient.js
 
-export default function ThemKhachHang() {
+export default function ThemKhachHangPage() {
   const router = useRouter();
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    gender: "",
-    tag: "",
-    birthday: "",
-    address: "",
-    source: "",
-    skin_condition: "",
-    notes: "",
-  });
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
+  const [tag, setTag] = useState("Không phân loại");
+  const [birthday, setBirthday] = useState("");
+  const [source, setSource] = useState("");
+  const [address, setAddress] = useState("");
+  const [skinCondition, setSkinCondition] = useState("");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const updateField = (field, value) => {
-    setForm({ ...form, [field]: value });
+  const validate = () => {
+    if (!name.trim()) {
+      alert("Vui lòng nhập tên khách hàng.");
+      return false;
+    }
+
+    const nameParts = name.trim().split(" ");
+    if (nameParts.length < 2) {
+      alert("Tên khách hàng phải là họ và tên (ít nhất 2 từ).");
+      return false;
+    }
+
+    if (!phone.trim()) {
+      alert("Vui lòng nhập số điện thoại.");
+      return false;
+    }
+
+    const phoneDigits = phone.trim();
+    if (!/^\d{9,11}$/.test(phoneDigits)) {
+      alert("Số điện thoại phải là 9–11 chữ số.");
+      return false;
+    }
+
+    if (!gender) {
+      alert("Vui lòng chọn giới tính.");
+      return false;
+    }
+
+    return true;
   };
 
-  const handleSave = () => {
-    alert("Mock layout – chưa nối Supabase. Anh duyệt layout trước.");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        name: name.trim(),
+        phone: phone.trim(),
+        gender,
+        tag,
+        birthday: birthday || null, // Supabase cột date, để null nếu không chọn
+        address: address.trim() || null,
+        source: source || null,
+        skin_condition: skinCondition.trim() || null,
+        notes: notes.trim() || null,
+      };
+
+      const { error } = await supabase.from("customers").insert([payload]);
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        alert("Có lỗi xảy ra khi lưu khách hàng. Vui lòng thử lại.");
+        return;
+      }
+
+      alert("Lưu khách hàng thành công.");
+      router.push("/khach-hang");
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Có lỗi xảy ra. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    router.push("/khach-hang");
   };
 
   return (
-    <div style={wrapper}>
-      <h1 style={title}>Thêm khách hàng</h1>
-      <p style={subtitle}>Nhập thông tin hồ sơ khách hàng đầy đủ & chính xác.</p>
+    <div style={{ padding: "32px 40px 40px 40px" }}>
+      {/* Tiêu đề */}
+      <h1
+        style={{
+          fontSize: 32,
+          fontWeight: 700,
+          marginBottom: 8,
+        }}
+      >
+        Thêm khách hàng
+      </h1>
+      <p
+        style={{
+          marginBottom: 24,
+          color: "#6b7280",
+          fontSize: 14,
+        }}
+      >
+        Nhập thông tin cơ bản để tạo mới hồ sơ khách hàng trong hệ thống ERP.
+      </p>
 
-      <div style={card}>
-        <div style={grid2}>
-
-          {/* Tên khách */}
-          <div style={fieldBox}>
-            <label style={label}>Tên khách hàng *</label>
+      {/* Card form */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          background: "#ffffff",
+          borderRadius: 24,
+          padding: 24,
+          boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
+          maxWidth: 1200,
+        }}
+      >
+        {/* Hàng 1: Tên + SĐT */}
+        <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>
+              Tên khách hàng <span style={{ color: "#ef4444" }}>*</span>
+            </label>
             <input
-              style={input}
-              value={form.name}
-              onChange={(e) => updateField("name", e.target.value)}
+              style={inputStyle}
               placeholder="VD: Ngọc Anh"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
-
-          {/* Số điện thoại */}
-          <div style={fieldBox}>
-            <label style={label}>Số điện thoại *</label>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>
+              Số điện thoại <span style={{ color: "#ef4444" }}>*</span>
+            </label>
             <input
-              style={input}
-              type="tel"
-              pattern="[0-9]*"
-              value={form.phone}
-              onChange={(e) =>
-                updateField("phone", e.target.value.replace(/\D/g, ""))
-              }
+              style={inputStyle}
               placeholder="VD: 0901234567"
+              inputMode="numeric"
+              value={phone}
+              onChange={(e) =>
+                setPhone(e.target.value.replace(/\D/g, "")) // chỉ cho nhập số
+              }
             />
           </div>
+        </div>
 
-          {/* Giới tính */}
-          <div style={fieldBox}>
-            <label style={label}>Giới tính *</label>
+        {/* Hàng 2: Giới tính + Tag */}
+        <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>
+              Giới tính <span style={{ color: "#ef4444" }}>*</span>
+            </label>
             <select
-              style={select}
-              value={form.gender}
-              onChange={(e) => updateField("gender", e.target.value)}
+              style={selectStyle}
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
             >
               <option value="">Chọn giới tính</option>
               <option value="Nữ">Nữ</option>
               <option value="Nam">Nam</option>
+              <option value="Khác">Khác</option>
             </select>
           </div>
-
-          {/* Tag phân loại */}
-          <div style={fieldBox}>
-            <label style={label}>Tag phân loại</label>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Tag phân loại</label>
             <select
-              style={select}
-              value={form.tag}
-              onChange={(e) => updateField("tag", e.target.value)}
+              style={selectStyle}
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
             >
-              <option value="">Không phân loại</option>
-              <option value="VIP">VIP</option>
+              <option value="Không phân loại">Không phân loại</option>
               <option value="Khách mới">Khách mới</option>
               <option value="Khách quen">Khách quen</option>
+              <option value="VIP">VIP</option>
               <option value="Khách tiềm năng">Khách tiềm năng</option>
             </select>
           </div>
+        </div>
 
-          {/* Ngày sinh */}
-          <div style={fieldBox}>
-            <label style={label}>Ngày sinh</label>
+        {/* Hàng 3: Ngày sinh + Nguồn khách */}
+        <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Ngày sinh</label>
             <input
-              style={input}
+              style={inputStyle}
               type="date"
-              value={form.birthday}
-              onChange={(e) => updateField("birthday", e.target.value)}
+              value={birthday}
+              onChange={(e) => setBirthday(e.target.value)}
             />
           </div>
-
-          {/* Nguồn khách */}
-          <div style={fieldBox}>
-            <label style={label}>Nguồn khách</label>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Nguồn khách</label>
             <select
-              style={select}
-              value={form.source}
-              onChange={(e) => updateField("source", e.target.value)}
+              style={selectStyle}
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
             >
               <option value="">Chọn nguồn khách</option>
               <option value="Facebook">Facebook</option>
               <option value="TikTok">TikTok</option>
               <option value="Zalo">Zalo</option>
+              <option value="Google">Google</option>
               <option value="Đi ngang qua">Đi ngang qua</option>
               <option value="Giới thiệu">Giới thiệu</option>
+              <option value="Khác">Khác</option>
             </select>
           </div>
         </div>
 
-        {/* Địa chỉ */}
-        <div style={fieldBox}>
-          <label style={label}>Địa chỉ</label>
+        {/* Hàng 4: Địa chỉ */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={labelStyle}>Địa chỉ</label>
           <input
-            style={input}
-            value={form.address}
-            onChange={(e) => updateField("address", e.target.value)}
+            style={inputStyle}
             placeholder="VD: 123 Nguyễn Trãi, Quận 1"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
           />
         </div>
 
-        {/* Tình trạng da */}
-        <div style={fieldBox}>
-          <label style={label}>Tình trạng da</label>
+        {/* Hàng 5: Tình trạng da */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={labelStyle}>Tình trạng da</label>
           <input
-            style={input}
-            value={form.skin_condition}
-            onChange={(e) => updateField("skin_condition", e.target.value)}
-            placeholder="VD: Da dầu, da nhạy cảm..."
+            style={inputStyle}
+            placeholder="VD: Da dầu, da khô, da nhạy cảm, mụn nhẹ..."
+            value={skinCondition}
+            onChange={(e) => setSkinCondition(e.target.value)}
           />
         </div>
 
-        {/* Ghi chú */}
-        <div style={fieldBox}>
-          <label style={label}>Ghi chú</label>
+        {/* Hàng 6: Ghi chú */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={labelStyle}>Ghi chú</label>
           <textarea
-            style={textarea}
-            rows={4}
-            value={form.notes}
-            onChange={(e) => updateField("notes", e.target.value)}
-            placeholder="Ghi chú thêm (nếu có)"
+            style={textAreaStyle}
+            placeholder="Ghi chú thêm (nếu có)..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
 
         {/* Nút */}
-        <div style={actionRow}>
-          <button style={cancelButton} onClick={() => router.push("/khach-hang")}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 12,
+            marginTop: 8,
+          }}
+        >
+          <button
+            type="button"
+            style={buttonGhost}
+            onClick={handleCancel}
+            disabled={loading}
+          >
             Hủy
           </button>
-          <button style={saveButton} onClick={handleSave}>
-            Lưu khách hàng
+          <button type="submit" style={buttonPrimary} disabled={loading}>
+            {loading ? "Đang lưu..." : "Lưu khách hàng"}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
 
-/* =========================
-     STYLE
-========================= */
-
-const wrapper = { padding: "24px" };
-const title = { fontSize: 28, fontWeight: 700, marginBottom: 4 };
-const subtitle = { color: "#6b7280", marginBottom: 24 };
-
-const card = {
-  background: "#ffffff",
-  padding: 28,
-  borderRadius: 20,
-  boxShadow: "0 15px 40px rgba(0,0,0,0.06)",
-};
-
-const grid2 = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 20,
-  marginBottom: 20,
-};
-
-const fieldBox = { display: "flex", flexDirection: "column", gap: 6 };
-
-const label = { fontWeight: 600, fontSize: 14, color: "#374151" };
-
-const input = {
-  padding: "12px 16px",
-  borderRadius: 12,
-  border: "1px solid #e5e7eb",
-  background: "#f9fafb",
+/* STYLE CHUẨN – TRẮNG / XÁM / VÀNG NHẠT */
+const labelStyle = {
+  display: "block",
+  marginBottom: 6,
   fontSize: 14,
+  fontWeight: 600,
+  color: "#374151",
 };
 
-const select = {
+const inputStyle = {
+  width: "100%",
   padding: "12px 16px",
-  borderRadius: 12,
-  border: "1px solid #e5e7eb",
-  background: "#ffffff",
-  fontSize: 14,
-};
-
-const textarea = {
-  padding: "12px 16px",
-  borderRadius: 12,
-  border: "1px solid #e5e7eb",
-  background: "#f9fafb",
-  fontSize: 14,
-};
-
-const actionRow = {
-  display: "flex",
-  justifyContent: "flex-end",
-  gap: 12,
-  marginTop: 20,
-};
-
-const cancelButton = {
-  padding: "12px 24px",
   borderRadius: 999,
   border: "1px solid #e5e7eb",
-  background: "#ffffff",
-  cursor: "pointer",
+  outline: "none",
   fontSize: 14,
-  fontWeight: 500,
+  backgroundColor: "#f9fafb",
 };
 
-const saveButton = {
-  padding: "12px 24px",
+const selectStyle = {
+  ...inputStyle,
+  appearance: "none",
+};
+
+const textAreaStyle = {
+  width: "100%",
+  padding: "12px 16px",
+  borderRadius: 18,
+  border: "1px solid #e5e7eb",
+  outline: "none",
+  fontSize: 14,
+  backgroundColor: "#f9fafb",
+  minHeight: 140,
+  resize: "vertical",
+};
+
+const buttonPrimary = {
+  padding: "11px 22px",
   borderRadius: 999,
   border: "none",
-  background: "#f5c451",
+  background: "#fbbf24", // vàng nhạt
+  color: "#111827",
+  fontSize: 14,
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
+const buttonGhost = {
+  padding: "11px 22px",
+  borderRadius: 999,
+  border: "1px solid #e5e7eb",
+  background: "#ffffff",
+  color: "#374151",
+  fontSize: 14,
   fontWeight: 600,
   cursor: "pointer",
-  fontSize: 14,
-  boxShadow: "0 10px 25px rgba(245,196,81,0.35)",
 };
