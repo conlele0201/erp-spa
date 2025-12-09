@@ -1,61 +1,59 @@
+// pages/khach-hang/index.js
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import styles from "./khachhang.module.css";
 
-export default function KhachHangPage() {
+export default function KhachHang() {
   const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-  // FORMAT NGÀY dd/mm/yyyy
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const d = new Date(dateString);
-    return d.toLocaleDateString("vi-VN");
-  };
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  // FORMAT TIỀN
-  const formatMoney = (num) => {
-    if (!num) return "0 đ";
-    return num.toLocaleString("vi-VN") + " đ";
-  };
-
-  // LẤY DỮ LIỆU TỪ SUPABASE
-  const loadCustomers = async () => {
-    setLoading(true);
-
+  async function loadData() {
     const { data, error } = await supabase
       .from("customers")
       .select("*")
-      .order("id", { ascending: false }); // khách mới nhất lên đầu
+      .order("id", { ascending: true });
 
-    if (error) {
-      console.error(error);
-      alert("Không tải được dữ liệu khách hàng.");
-    } else {
+    if (!error && data) {
       setCustomers(data);
     }
+  }
 
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadCustomers();
-  }, []);
+  const filtered = customers.filter((c) => {
+    const s = search.toLowerCase();
+    return (
+      c.name?.toLowerCase().includes(s) ||
+      c.phone?.toLowerCase().includes(s)
+    );
+  });
 
   return (
-    <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Khách hàng</h1>
-      <p className={styles.pageSubtitle}>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Khách hàng</h1>
+      <p className={styles.subtitle}>
         Quản lý hồ sơ khách hàng, lịch sử đến spa và phân loại chăm sóc.
       </p>
 
-      <div className={styles.headerActions}>
-        <button
-          className={styles.buttonPrimary}
-          onClick={() => (window.location.href = "/khach-hang/them")}
-        >
-          + Thêm khách hàng
-        </button>
+      <div className={styles.topBar}>
+        <input
+          className={styles.search}
+          placeholder="Tìm theo tên, số điện thoại..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select className={styles.filter}>
+          <option>Tất cả tag</option>
+        </select>
+
+        <select className={styles.filter}>
+          <option>Tất cả nguồn khách</option>
+        </select>
+
+        <button className={styles.addButton}>+ Thêm khách hàng</button>
       </div>
 
       <div className={styles.tableWrapper}>
@@ -75,59 +73,35 @@ export default function KhachHangPage() {
           </thead>
 
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="9" style={{ textAlign: "center", padding: 20 }}>
-                  Đang tải dữ liệu...
+            {filtered.map((c) => (
+              <tr key={c.id}>
+                <td>
+                  <strong>{c.name}</strong>
+                  <br />
+                  <span className={styles.birthday}>
+                    Sinh nhật: {c.birthday || "--"}
+                  </span>
+                </td>
+
+                <td>{c.phone}</td>
+                <td>{c.gender}</td>
+
+                <td>
+                  <span className={`${styles.tag} ${styles.tagVip}`}>
+                    {c.tag}
+                  </span>
+                </td>
+
+                <td>{c.total_spent || 0} đ</td>
+                <td>{c.visit_count || 0}</td>
+                <td>{c.last_visit || "-"}</td>
+                <td>{c.source || "-"}</td>
+
+                <td>
+                  <button className={styles.viewBtn}>Xem</button>
                 </td>
               </tr>
-            ) : customers.length === 0 ? (
-              <tr>
-                <td colSpan="9" style={{ textAlign: "center", padding: 20 }}>
-                  Chưa có khách hàng nào.
-                </td>
-              </tr>
-            ) : (
-              customers.map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <strong>{c.name}</strong>
-                    <div className={styles.birthText}>
-                      Sinh nhật: {formatDate(c.birthday)}
-                    </div>
-                  </td>
-
-                  <td>{c.phone}</td>
-
-                  <td>{c.gender}</td>
-
-                  <td>
-                    {c.tag ? (
-                      <span className={styles.tag}>{c.tag}</span>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-
-                  <td>{formatMoney(c.total_spent || 0)}</td>
-
-                  <td>{c.visits || 0}</td>
-
-                  <td>{formatDate(c.last_visit)}</td>
-
-                  <td>{c.source || "-"}</td>
-
-                  <td>
-                    <button
-                      className={styles.viewBtn}
-                      onClick={() => alert("Chức năng xem chi tiết đang làm")}
-                    >
-                      Xem
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
