@@ -1,135 +1,133 @@
+// pages/khach-hang/index.js
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import styles from "./khachhang.module.css"; // ⭐ giữ layout gốc
+import { supabase } from "@/lib/supabaseClient";
+import styles from "./khachhang.module.css";
+import Link from "next/link";
 
-export default function KhachHangPage() {
+// Hàm chuẩn hóa: bỏ dấu + chuyển thường
+const normalize = (str) =>
+  str
+    ?.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") || "";
+
+export default function KhachHang() {
   const [customers, setCustomers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    async function load() {
-      const { data, error } = await supabase
-        .from("customers")
-        .select(
-          "id, name, phone, gender, tag, total_spent, visits, last_visit, birthday, source"
-        );
-
-      if (!error) {
-        setCustomers(data);
-        setFiltered(data);
-      }
-    }
-    load();
+    loadCustomers();
   }, []);
 
-  // ⭐ SEARCH FILTER
+  async function loadCustomers() {
+    const { data, error } = await supabase.from("customers").select("*");
+
+    if (error) {
+      alert("Không tải được danh sách khách hàng");
+      return;
+    }
+
+    setCustomers(data);
+    setFiltered(data);
+  }
+
+  // SEARCH thực sự chuẩn — không phân biệt hoa/thường/không dấu
   useEffect(() => {
-    const term = search.toLowerCase();
+    const txt = normalize(search);
+
     const result = customers.filter(
       (c) =>
-        c.name.toLowerCase().includes(term) ||
-        c.phone.includes(term)
+        normalize(c.name).includes(txt) || normalize(c.phone).includes(txt)
     );
+
     setFiltered(result);
   }, [search, customers]);
 
-  const shortDate = (d) => {
-    if (!d) return "-";
-    const dt = new Date(d);
-    if (isNaN(dt)) return "-";
-    return `${String(dt.getDate()).padStart(2, "0")}/${String(
-      dt.getMonth() + 1
-    ).padStart(2, "0")}`;
-  };
-
-  const money = (v) =>
-    v ? Number(v).toLocaleString("vi-VN") + " đ" : "0 đ";
-
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.inner}>
+    <div className={styles.container}>
+      <div className={styles.headerRow}>
+        <h1 className={styles.title}>Khách hàng</h1>
 
-        {/* HEADER */}
-        <div className={styles.headerRow}>
-          <div>
-            <h1 className={styles.title}>Khách hàng</h1>
-            <p className={styles.subtitle}>
-              Quản lý hồ sơ khách hàng, lịch sử đến spa và phân loại chăm sóc.
-            </p>
-          </div>
+        <Link href="/khach-hang/them">
+          <button className={styles.addButton}>+ Thêm khách hàng</button>
+        </Link>
+      </div>
 
-          {/* ⭐ BUTTON ĐÚNG GỐC */}
-          <button
-            className={styles.addButton}
-            onClick={() => (window.location.href = "/khach-hang/them")}
-          >
-            + Thêm khách hàng
-          </button>
-        </div>
+      <p className={styles.subtitle}>
+        Quản lý hồ sơ khách hàng, lịch sử đến spa và phân loại chăm sóc.
+      </p>
 
-        {/* SEARCH + FILTER */}
-        <div className={styles.filterRow}>
-          <input
-            className={styles.searchInput}
-            placeholder="Tìm theo tên, số điện thoại..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* Ô search */}
+      <input
+        className={styles.searchBox}
+        type="text"
+        placeholder="Tìm theo tên, số điện thoại..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-          <select className={styles.filterSelect}>
-            <option>Tất cả tag</option>
-          </select>
+      {/* Bảng khách hàng */}
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Tên khách</th>
+              <th>Số điện thoại</th>
+              <th>Giới tính</th>
+              <th>Tag</th>
+              <th>Tổng chi tiêu</th>
+              <th>Lần đến</th>
+              <th>Gần nhất</th>
+              <th>Nguồn</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
 
-          <select className={styles.filterSelect}>
-            <option>Tất cả nguồn khách</option>
-          </select>
-        </div>
+          <tbody>
+            {filtered.map((c) => (
+              <tr key={c.id}>
+                <td>
+                  <strong>{c.name}</strong>
+                  <br />
+                  <span className={styles.birthText}>
+                    Sinh nhật: {c.birthday || "-"}
+                  </span>
+                </td>
 
-        {/* TABLE */}
-        <div className={styles.tableWrapper}>
-          <div className={styles.tableHeader}>
-            <span>Tên khách</span>
-            <span>Số điện thoại</span>
-            <span>Giới tính</span>
-            <span>Tag</span>
-            <span>Tổng chi tiêu</span>
-            <span>Lần đến</span>
-            <span>Gần nhất</span>
-            <span style={{ textAlign: "right" }}>Thao tác</span>
-          </div>
+                <td>{c.phone}</td>
+                <td>{c.gender}</td>
 
-          {filtered.map((c) => (
-            <div key={c.id} className={styles.tableRow}>
-              <div>
-                <strong>{c.name}</strong>
-                <div className={styles.birthdayText}>
-                  Sinh nhật: {shortDate(c.birthday)}
-                </div>
-              </div>
+                <td>
+                  {c.tag ? (
+                    <span className={styles.tag}>{c.tag}</span>
+                  ) : (
+                    "-"
+                  )}
+                </td>
 
-              <span>{c.phone}</span>
-              <span>{c.gender === "male" ? "Nam" : "Nữ"}</span>
+                <td>{c.total_spent || 0} đ</td>
+                <td>{c.visit_count || 0}</td>
+                <td>{c.last_visit || "-"}</td>
+                <td>{c.source || "-"}</td>
 
-              {/* TAG BADGE */}
-              <span>
-                {c.tag ? (
-                  <span className={styles.tagBadge}>{c.tag}</span>
-                ) : (
-                  "-"
-                )}
-              </span>
+                <td>
+                  <Link href={`/khach-hang/${c.id}`}>
+                    <button className={styles.viewButton}>Xem</button>
+                  </Link>
+                </td>
+              </tr>
+            ))}
 
-              <span>{money(c.total_spent)}</span>
-              <span>{c.visits || 0}</span>
-              <span>-</span>
-
-              <div style={{ textAlign: "right" }}>
-                <button className={styles.viewButton}>Xem</button>
-              </div>
-            </div>
-          ))}
-        </div>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan="9" className={styles.noData}>
+                  Không tìm thấy khách hàng nào.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
