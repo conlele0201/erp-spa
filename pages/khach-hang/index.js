@@ -6,27 +6,26 @@ export default function KhachHangPage() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // FORMAT NGÀY dd/mm/yyyy
+  // Format tiền
+  const formatMoney = (num) => {
+    if (!num) return "0 đ";
+    return num.toLocaleString("vi-VN") + " đ";
+  };
+
+  // Format ngày
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const d = new Date(dateString);
     return d.toLocaleDateString("vi-VN");
   };
 
-  // FORMAT TIỀN
-  const formatMoney = (num) => {
-    if (!num) return "0 đ";
-    return num.toLocaleString("vi-VN") + " đ";
-  };
-
-  // LẤY DỮ LIỆU TỪ SUPABASE
-  const loadCustomers = async () => {
+  // Load data từ Supabase
+  const loadData = async () => {
     setLoading(true);
-
     const { data, error } = await supabase
       .from("customers")
       .select("*")
-      .order("id", { ascending: false }); // khách mới nhất lên đầu
+      .order("id", { ascending: false });
 
     if (error) {
       console.error(error);
@@ -34,12 +33,11 @@ export default function KhachHangPage() {
     } else {
       setCustomers(data);
     }
-
     setLoading(false);
   };
 
   useEffect(() => {
-    loadCustomers();
+    loadData();
   }, []);
 
   return (
@@ -49,14 +47,12 @@ export default function KhachHangPage() {
         Quản lý hồ sơ khách hàng, lịch sử đến spa và phân loại chăm sóc.
       </p>
 
-      <div className={styles.headerActions}>
-        <button
-          className={styles.buttonPrimary}
-          onClick={() => (window.location.href = "/khach-hang/them")}
-        >
-          + Thêm khách hàng
-        </button>
-      </div>
+      <button
+        className={styles.addButton}
+        onClick={() => (window.location.href = "/khach-hang/them")}
+      >
+        + Thêm khách hàng
+      </button>
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
@@ -81,12 +77,6 @@ export default function KhachHangPage() {
                   Đang tải dữ liệu...
                 </td>
               </tr>
-            ) : customers.length === 0 ? (
-              <tr>
-                <td colSpan="9" style={{ textAlign: "center", padding: 20 }}>
-                  Chưa có khách hàng nào.
-                </td>
-              </tr>
             ) : (
               customers.map((c) => (
                 <tr key={c.id}>
@@ -98,7 +88,6 @@ export default function KhachHangPage() {
                   </td>
 
                   <td>{c.phone}</td>
-
                   <td>{c.gender}</td>
 
                   <td>
@@ -110,17 +99,14 @@ export default function KhachHangPage() {
                   </td>
 
                   <td>{formatMoney(c.total_spent || 0)}</td>
-
                   <td>{c.visits || 0}</td>
-
                   <td>{formatDate(c.last_visit)}</td>
-
                   <td>{c.source || "-"}</td>
 
                   <td>
                     <button
                       className={styles.viewBtn}
-                      onClick={() => alert("Chức năng xem chi tiết đang làm")}
+                      onClick={() => alert("Chức năng xem chi tiết sẽ làm sau")}
                     >
                       Xem
                     </button>
