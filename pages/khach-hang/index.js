@@ -22,11 +22,11 @@ export default function KhachHangPage() {
     if (!error && data) {
       setCustomers(data);
 
-      // Lấy tag duy nhất
+      // Lấy danh sách tag duy nhất
       const uniqueTags = [...new Set(data.map((c) => c.tag).filter(Boolean))];
       setTags(uniqueTags);
 
-      // Lấy nguồn duy nhất
+      // Lấy danh sách nguồn khách duy nhất
       const uniqueSources = [
         ...new Set(data.map((c) => c.source).filter(Boolean)),
       ];
@@ -52,7 +52,11 @@ export default function KhachHangPage() {
         </div>
 
         <div style={headerActions}>
-          <button style={outlineButton} type="button" onClick={() => loadData()}>
+          <button
+            style={outlineButton}
+            type="button"
+            onClick={() => loadData()}
+          >
             Làm mới
           </button>
 
@@ -76,32 +80,17 @@ export default function KhachHangPage() {
         </div>
 
         <div style={filterRight}>
-
-          {/* Dropdown TAG - FULL OPTION */}
+          {/* Dropdown TAG */}
           <select style={filterSelect}>
-            <option value="">Tất cả tag</option>
-            <option value="VIP">VIP</option>
-            <option value="Khách mới">Khách mới</option>
-            <option value="Khách quen">Khách quen</option>
-            <option value="Khách tiềm năng">Khách tiềm năng</option>
-
-            {/* Auto load từ DB */}
+            <option>Tất cả tag</option>
             {tags.map((t, i) => (
               <option key={i}>{t}</option>
             ))}
           </select>
 
-          {/* Dropdown Nguồn khách - FULL OPTION */}
+          {/* Dropdown NGUỒN KHÁCH */}
           <select style={filterSelect}>
-            <option value="">Tất cả nguồn khách</option>
-            <option>Facebook</option>
-            <option>TikTok</option>
-            <option>Zalo</option>
-            <option>Google</option>
-            <option>Giới thiệu</option>
-            <option>Đi ngang qua</option>
-
-            {/* Auto load từ DB */}
+            <option>Tất cả nguồn khách</option>
             {sources.map((s, i) => (
               <option key={i}>{s}</option>
             ))}
@@ -158,7 +147,7 @@ export default function KhachHangPage() {
   );
 }
 
-/* ==== STYLE GIỮ NGUYÊN ==== */
+/* ===== STYLE OBJECTS ===== */
 
 const pageWrapper = { padding: 24 };
 
@@ -187,14 +176,28 @@ const primaryButton = {
   background: "#f5c451",
   color: "#111827",
   fontWeight: 600,
+  fontSize: 14,
   cursor: "pointer",
+  boxShadow: "0 10px 30px rgba(245,196,81,0.35)",
 };
 
 const outlineButton = {
   padding: "10px 18px",
   borderRadius: 999,
   border: "1px solid #e5e7eb",
-  background: "#fff",
+  background: "#ffffff",
+  color: "#374151",
+  fontWeight: 500,
+  fontSize: 14,
+  cursor: "pointer",
+};
+
+const secondaryButton = {
+  padding: "6px 14px",
+  borderRadius: 999,
+  border: "1px solid #e5e7eb",
+  background: "#ffffff",
+  fontSize: 13,
   cursor: "pointer",
 };
 
@@ -212,6 +215,8 @@ const searchInput = {
   padding: "10px 14px",
   borderRadius: 999,
   border: "1px solid #e5e7eb",
+  outline: "none",
+  fontSize: 14,
   background: "#f9fafb",
 };
 
@@ -219,39 +224,51 @@ const filterSelect = {
   padding: "9px 14px",
   borderRadius: 999,
   border: "1px solid #e5e7eb",
+  fontSize: 14,
+  background: "#ffffff",
 };
 
 const tableCard = {
-  background: "#fff",
+  background: "#ffffff",
   borderRadius: 20,
   padding: 20,
   boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
 };
 
-const table = { width: "100%", borderCollapse: "collapse" };
+const table = {
+  width: "100%",
+  borderCollapse: "collapse",
+  fontSize: 14,
+};
 
 const th = {
-  padding: "10px 12px",
-  background: "#f9fafb",
-  borderBottom: "1px solid #f3f4f6",
-  fontWeight: 600,
   textAlign: "left",
+  padding: "10px 12px",
+  fontWeight: 600,
+  borderBottom: "1px solid #f3f4f6",
+  background: "#f9fafb",
 };
 
 const tr = { borderBottom: "1px solid #f3f4f6" };
 
-const td = { padding: "10px 12px" };
+const td = { padding: "10px 12px", verticalAlign: "middle" };
 
 const tdName = { ...td };
 
-const tdSubText = { fontSize: 12, color: "#9ca3af" };
+const tdSubText = {
+  fontSize: 12,
+  color: "#9ca3af",
+  marginTop: 2,
+};
 
+/* Badge theo tag */
 function getTagStyle(tag) {
   const base = {
     padding: "4px 10px",
     borderRadius: 999,
     fontSize: 12,
     fontWeight: 600,
+    display: "inline-block",
   };
 
   switch (tag) {
