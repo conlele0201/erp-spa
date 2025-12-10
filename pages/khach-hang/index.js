@@ -1,36 +1,15 @@
-// pages/khach-hang/index.js
+"use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { supabase } from "../../lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function KhachHangPage() {
   const router = useRouter();
 
   const [customers, setCustomers] = useState([]);
-
-  /* ====== DANH SÁCH CHUẨN THEO YÊU CẦU ====== */
-  const TAG_LIST = [
-    "VIP",
-    "Khách mới",
-    "Khách quen",
-    "Khách tiềm năng",
-    "Khách quay lại",
-    "Khách vãng lai",
-  ];
-
-  const SOURCE_LIST = [
-    "Facebook",
-    "TikTok",
-    "Zalo",
-    "Instagram",
-    "Google Map",
-    "Đi ngang qua",
-    "Giới thiệu",
-    "Khác",
-  ];
-
-  /* ========================================== */
+  const [tags, setTags] = useState([]);
+  const [sources, setSources] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -38,8 +17,17 @@ export default function KhachHangPage() {
 
   async function loadData() {
     const { data, error } = await supabase.from("customers").select("*");
+
     if (!error && data) {
       setCustomers(data);
+
+      const uniqueTags = [...new Set(data.map((c) => c.tag).filter(Boolean))];
+      setTags(uniqueTags);
+
+      const uniqueSources = [
+        ...new Set(data.map((c) => c.source).filter(Boolean)),
+      ];
+      setSources(uniqueSources);
     }
   }
 
@@ -51,7 +39,6 @@ export default function KhachHangPage() {
 
   return (
     <div style={pageWrapper}>
-      {/* Header */}
       <div style={headerRow}>
         <div>
           <h1 style={title}>Khách hàng</h1>
@@ -74,25 +61,26 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* FILTER BAR */}
+      {/* FILTER */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
-          <input placeholder="Tìm theo tên, số điện thoại..." style={searchInput} />
+          <input
+            placeholder="Tìm theo tên, số điện thoại..."
+            style={searchInput}
+          />
         </div>
 
         <div style={filterRight}>
-          {/* TAG LIST (DANH SÁCH CỐ ĐỊNH) */}
           <select style={filterSelect}>
             <option>Tất cả tag</option>
-            {TAG_LIST.map((t, i) => (
+            {tags.map((t, i) => (
               <option key={i}>{t}</option>
             ))}
           </select>
 
-          {/* SOURCE LIST (DANH SÁCH CỐ ĐỊNH) */}
           <select style={filterSelect}>
             <option>Tất cả nguồn khách</option>
-            {SOURCE_LIST.map((s, i) => (
+            {sources.map((s, i) => (
               <option key={i}>{s}</option>
             ))}
           </select>
@@ -148,22 +136,34 @@ export default function KhachHangPage() {
   );
 }
 
-/* ==== CSS Object giữ nguyên y như bản gốc ==== */
+/* ==== STYLE GIỮ NGUYÊN 100% ==== */
 
 const pageWrapper = { padding: 24 };
+
 const title = { fontSize: 28, fontWeight: 700, marginBottom: 4 };
+
 const subtitle = { color: "#6b7280", fontSize: 14 };
-const headerRow = { display: "flex", justifyContent: "space-between", marginBottom: 20 };
+
+const headerRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 20,
+};
+
 const headerActions = { display: "flex", gap: 8 };
+
 const primaryButton = {
   padding: "10px 18px",
   borderRadius: 999,
-  background: "#f5c451",
   border: "none",
+  background: "#f5c451",
+  color: "#111827",
   fontWeight: 600,
   cursor: "pointer",
   boxShadow: "0 10px 30px rgba(245,196,81,0.35)",
 };
+
 const outlineButton = {
   padding: "10px 18px",
   borderRadius: 999,
@@ -171,8 +171,11 @@ const outlineButton = {
   background: "#fff",
   cursor: "pointer",
 };
+
 const filterBar = { display: "flex", gap: 16, marginBottom: 16 };
+
 const filterRight = { display: "flex", gap: 8 };
+
 const searchInput = {
   width: "100%",
   padding: "10px 14px",
@@ -180,18 +183,22 @@ const searchInput = {
   border: "1px solid #e5e7eb",
   background: "#f9fafb",
 };
+
 const filterSelect = {
   padding: "9px 14px",
   borderRadius: 999,
   border: "1px solid #e5e7eb",
 };
+
 const tableCard = {
   background: "#fff",
   padding: 20,
   borderRadius: 20,
   boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
 };
+
 const table = { width: "100%", borderCollapse: "collapse" };
+
 const th = {
   padding: "10px 12px",
   background: "#f9fafb",
@@ -199,9 +206,13 @@ const th = {
   fontWeight: 600,
   textAlign: "left",
 };
+
 const tr = { borderBottom: "1px solid #f3f4f6" };
+
 const td = { padding: "10px 12px" };
+
 const tdName = { ...td };
+
 const tdSubText = { fontSize: 12, color: "#9ca3af" };
 
 function getTagStyle(tag) {
