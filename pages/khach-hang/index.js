@@ -1,21 +1,17 @@
 // pages/khach-hang/index.js
 
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// KHỞI TẠO SUPABASE
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { useRouter } from "next/router";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function KhachHangPage() {
   const router = useRouter();
-  const [customers, setCustomers] = useState([]);
-  const [search, setSearch] = useState("");
 
-  // LOAD DATA TỪ SUPABASE
+  const [customers, setCustomers] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [sources, setSources] = useState([]);
+
+  // Load dữ liệu từ Supabase
   useEffect(() => {
     loadData();
   }, []);
@@ -25,28 +21,28 @@ export default function KhachHangPage() {
 
     if (!error && data) {
       setCustomers(data);
+
+      // Lấy danh sách tag duy nhất
+      const uniqueTags = [...new Set(data.map((c) => c.tag).filter(Boolean))];
+      setTags(uniqueTags);
+
+      // Lấy danh sách nguồn khách duy nhất
+      const uniqueSources = [
+        ...new Set(data.map((c) => c.source).filter(Boolean)),
+      ];
+      setSources(uniqueSources);
     }
   }
 
-  // FORMAT TIỀN
   const formatCurrency = (value) =>
-    Number(value || 0).toLocaleString("vi-VN", {
+    Number(value).toLocaleString("vi-VN", {
       style: "currency",
       currency: "VND",
     });
 
-  // SEARCH FILTER (THEO TÊN + SĐT)
-  const filtered = customers.filter((c) => {
-    const term = search.toLowerCase();
-    return (
-      c.name?.toLowerCase().includes(term) ||
-      c.phone?.toLowerCase().includes(term)
-    );
-  });
-
   return (
     <div style={pageWrapper}>
-      {/* TITLE */}
+      {/* Header */}
       <div style={headerRow}>
         <div>
           <h1 style={title}>Khách hàng</h1>
@@ -59,10 +55,11 @@ export default function KhachHangPage() {
           <button
             style={outlineButton}
             type="button"
-            onClick={() => router.reload()}
+            onClick={() => loadData()}
           >
             Làm mới
           </button>
+
           <button
             style={primaryButton}
             type="button"
@@ -73,29 +70,35 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* SEARCH + FILTER */}
+      {/* Thanh filter */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
           <input
             placeholder="Tìm theo tên, số điện thoại..."
             style={searchInput}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <div style={filterRight}>
+          {/* Dropdown TAG */}
           <select style={filterSelect}>
             <option>Tất cả tag</option>
+            {tags.map((t, i) => (
+              <option key={i}>{t}</option>
+            ))}
           </select>
 
+          {/* Dropdown NGUỒN KHÁCH */}
           <select style={filterSelect}>
             <option>Tất cả nguồn khách</option>
+            {sources.map((s, i) => (
+              <option key={i}>{s}</option>
+            ))}
           </select>
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* Bảng khách hàng */}
       <div style={tableCard}>
         <table style={table}>
           <thead>
@@ -113,31 +116,27 @@ export default function KhachHangPage() {
           </thead>
 
           <tbody>
-            {filtered.map((c) => (
+            {customers.map((c) => (
               <tr key={c.id} style={tr}>
                 <td style={tdName}>
                   <div style={{ fontWeight: 600 }}>{c.name}</div>
-                  <div style={tdSubText}>
-                    Sinh nhật: {c.birthday || "--/--"}
-                  </div>
+                  <div style={tdSubText}>Sinh nhật: {c.birthday}</div>
                 </td>
+
                 <td style={td}>{c.phone}</td>
                 <td style={td}>{c.gender}</td>
+
                 <td style={td}>
                   <span style={getTagStyle(c.tag)}>{c.tag}</span>
                 </td>
-                <td style={td}>{formatCurrency(c.totalSpent)}</td>
-                <td style={td}>{c.visits}</td>
+
+                <td style={td}>{formatCurrency(c.totalSpent || 0)}</td>
+                <td style={td}>{c.visits || 0}</td>
                 <td style={td}>{c.lastVisit || "-"}</td>
-                <td style={td}>{c.source}</td>
+                <td style={td}>{c.source || "-"}</td>
+
                 <td style={td}>
-                  <button
-                    type="button"
-                    style={secondaryButton}
-                    onClick={() => alert("Sau này mở trang chi tiết")}
-                  >
-                    Xem
-                  </button>
+                  <button style={secondaryButton}>Xem</button>
                 </td>
               </tr>
             ))}
@@ -148,11 +147,16 @@ export default function KhachHangPage() {
   );
 }
 
-/* ========= STYLE GIỮ NGUYÊN 100% ========== */
+/* ===== STYLE OBJECTS ===== */
 
 const pageWrapper = { padding: 24 };
 
-const title = { fontSize: 28, fontWeight: 700, margin: 0, marginBottom: 4 };
+const title = {
+  fontSize: 28,
+  fontWeight: 700,
+  margin: 0,
+  marginBottom: 4,
+};
 
 const subtitle = { margin: 0, color: "#6b7280", fontSize: 14 };
 
@@ -251,8 +255,13 @@ const td = { padding: "10px 12px", verticalAlign: "middle" };
 
 const tdName = { ...td };
 
-const tdSubText = { fontSize: 12, color: "#9ca3af", marginTop: 2 };
+const tdSubText = {
+  fontSize: 12,
+  color: "#9ca3af",
+  marginTop: 2,
+};
 
+/* Badge theo tag */
 function getTagStyle(tag) {
   const base = {
     padding: "4px 10px",
