@@ -1,104 +1,168 @@
-// pages/khach-hang/index.js
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import styles from "./khachhang.module.css";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function KhachHang() {
   const [customers, setCustomers] = useState([]);
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    loadData();
+    fetchCustomers();
   }, []);
 
-  async function loadData() {
-    const { data, error } = await supabase
-      .from("customers")
-      .select("*")
-      .order("id", { ascending: true });
+  async function fetchCustomers() {
+    const { data, error } = await supabase.from("customers").select("*");
 
     if (!error && data) {
       setCustomers(data);
     }
   }
 
-  const filtered = customers.filter((c) => {
-    const s = search.toLowerCase();
-    return (
-      c.name?.toLowerCase().includes(s) ||
-      c.phone?.toLowerCase().includes(s)
-    );
-  });
+  const filteredCustomers = customers.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Khách hàng</h1>
-      <p className={styles.subtitle}>
+    <div style={{ padding: "40px" }}>
+      <h1 style={{ fontSize: "42px", fontWeight: "700", marginBottom: "10px" }}>
+        Khách hàng
+      </h1>
+
+      <p style={{ color: "#444", marginBottom: "20px" }}>
         Quản lý hồ sơ khách hàng, lịch sử đến spa và phân loại chăm sóc.
       </p>
 
-      <div className={styles.topBar}>
+      {/* SEARCH + TAG + NGUỒN + BUTTON */}
+      <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
         <input
-          className={styles.search}
-          placeholder="Tìm theo tên, số điện thoại..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          type="text"
+          placeholder="Tìm theo tên, số điện thoại…"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            flex: 1,
+            padding: "14px 20px",
+            borderRadius: "40px",
+            border: "1px solid #ccc",
+            fontSize: "16px",
+          }}
         />
 
-        <select className={styles.filter}>
+        <select
+          style={{
+            padding: "14px 20px",
+            borderRadius: "40px",
+            border: "1px solid #ccc",
+            fontSize: "15px",
+          }}
+        >
           <option>Tất cả tag</option>
         </select>
 
-        <select className={styles.filter}>
+        <select
+          style={{
+            padding: "14px 20px",
+            borderRadius: "40px",
+            border: "1px solid #ccc",
+            fontSize: "15px",
+          }}
+        >
           <option>Tất cả nguồn khách</option>
         </select>
 
-        <button className={styles.addButton}>+ Thêm khách hàng</button>
+        <button
+          style={{
+            padding: "14px 28px",
+            background: "#f4b400",
+            color: "white",
+            border: "none",
+            borderRadius: "40px",
+            fontSize: "16px",
+            fontWeight: "600",
+            cursor: "pointer",
+          }}
+        >
+          + Thêm khách hàng
+        </button>
       </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
+      {/* TABLE */}
+      <div
+        style={{
+          marginTop: "32px",
+          background: "white",
+          borderRadius: "20px",
+          padding: "0",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            borderRadius: "20px",
+            overflow: "hidden",
+          }}
+        >
           <thead>
-            <tr>
-              <th>Tên khách</th>
-              <th>Số điện thoại</th>
-              <th>Giới tính</th>
-              <th>Tag</th>
-              <th>Tổng chi tiêu</th>
-              <th>Lần đến</th>
-              <th>Gần nhất</th>
-              <th>Nguồn</th>
-              <th>Thao tác</th>
+            <tr style={{ background: "#fdecb2", textAlign: "left" }}>
+              <th style={thStyle}>Tên khách</th>
+              <th style={thStyle}>Số điện thoại</th>
+              <th style={thStyle}>Giới tính</th>
+              <th style={thStyle}>Tag</th>
+              <th style={thStyle}>Tổng chi tiêu</th>
+              <th style={thStyle}>Lần đến</th>
+              <th style={thStyle}>Gần nhất</th>
+              <th style={thStyle}>Nguồn</th>
+              <th style={thStyle}>Thao tác</th>
             </tr>
           </thead>
 
           <tbody>
-            {filtered.map((c) => (
-              <tr key={c.id}>
-                <td>
-                  <strong>{c.name}</strong>
-                  <br />
-                  <span className={styles.birthday}>
-                    Sinh nhật: {c.birthday || "--"}
+            {filteredCustomers.map((kh) => (
+              <tr key={kh.id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={tdStyle}>
+                  <strong>{kh.name}</strong>
+                  <div style={{ fontSize: "13px", color: "#666" }}>
+                    Sinh nhật: {kh.birthday || "-"}
+                  </div>
+                </td>
+                <td style={tdStyle}>{kh.phone}</td>
+                <td style={tdStyle}>{kh.gender}</td>
+                <td style={tdStyle}>
+                  <span
+                    style={{
+                      padding: "6px 14px",
+                      background: "#ffefef",
+                      borderRadius: "20px",
+                      color: "#d66",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {kh.tag || "VIP"}
                   </span>
                 </td>
-
-                <td>{c.phone}</td>
-                <td>{c.gender}</td>
-
-                <td>
-                  <span className={`${styles.tag} ${styles.tagVip}`}>
-                    {c.tag}
-                  </span>
-                </td>
-
-                <td>{c.total_spent || 0} đ</td>
-                <td>{c.visit_count || 0}</td>
-                <td>{c.last_visit || "-"}</td>
-                <td>{c.source || "-"}</td>
-
-                <td>
-                  <button className={styles.viewBtn}>Xem</button>
+                <td style={tdStyle}>0 đ</td>
+                <td style={tdStyle}>0</td>
+                <td style={tdStyle}>-</td>
+                <td style={tdStyle}>{kh.source}</td>
+                <td style={tdStyle}>
+                  <button
+                    style={{
+                      padding: "6px 18px",
+                      background: "white",
+                      border: "1px solid #ddd",
+                      borderRadius: "20px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Xem
+                  </button>
                 </td>
               </tr>
             ))}
@@ -108,3 +172,14 @@ export default function KhachHang() {
     </div>
   );
 }
+
+const thStyle = {
+  padding: "18px 20px",
+  fontSize: "15px",
+  fontWeight: "600",
+};
+
+const tdStyle = {
+  padding: "18px 20px",
+  fontSize: "15px",
+};
