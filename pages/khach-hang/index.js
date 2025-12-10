@@ -1,8 +1,8 @@
-"use client";
+// pages/khach-hang/index.js
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/router";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function KhachHangPage() {
   const router = useRouter();
@@ -11,6 +11,7 @@ export default function KhachHangPage() {
   const [tags, setTags] = useState([]);
   const [sources, setSources] = useState([]);
 
+  // Load dữ liệu từ Supabase
   useEffect(() => {
     loadData();
   }, []);
@@ -21,9 +22,11 @@ export default function KhachHangPage() {
     if (!error && data) {
       setCustomers(data);
 
+      // Lấy tag duy nhất
       const uniqueTags = [...new Set(data.map((c) => c.tag).filter(Boolean))];
       setTags(uniqueTags);
 
+      // Lấy nguồn duy nhất
       const uniqueSources = [
         ...new Set(data.map((c) => c.source).filter(Boolean)),
       ];
@@ -39,6 +42,7 @@ export default function KhachHangPage() {
 
   return (
     <div style={pageWrapper}>
+      {/* Header */}
       <div style={headerRow}>
         <div>
           <h1 style={title}>Khách hàng</h1>
@@ -48,12 +52,13 @@ export default function KhachHangPage() {
         </div>
 
         <div style={headerActions}>
-          <button style={outlineButton} onClick={() => loadData()}>
+          <button style={outlineButton} type="button" onClick={() => loadData()}>
             Làm mới
           </button>
 
           <button
             style={primaryButton}
+            type="button"
             onClick={() => router.push("/khach-hang/them")}
           >
             + Thêm khách hàng
@@ -61,7 +66,7 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* FILTER */}
+      {/* Thanh filter */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
           <input
@@ -71,15 +76,32 @@ export default function KhachHangPage() {
         </div>
 
         <div style={filterRight}>
+
+          {/* Dropdown TAG - FULL OPTION */}
           <select style={filterSelect}>
-            <option>Tất cả tag</option>
+            <option value="">Tất cả tag</option>
+            <option value="VIP">VIP</option>
+            <option value="Khách mới">Khách mới</option>
+            <option value="Khách quen">Khách quen</option>
+            <option value="Khách tiềm năng">Khách tiềm năng</option>
+
+            {/* Auto load từ DB */}
             {tags.map((t, i) => (
               <option key={i}>{t}</option>
             ))}
           </select>
 
+          {/* Dropdown Nguồn khách - FULL OPTION */}
           <select style={filterSelect}>
-            <option>Tất cả nguồn khách</option>
+            <option value="">Tất cả nguồn khách</option>
+            <option>Facebook</option>
+            <option>TikTok</option>
+            <option>Zalo</option>
+            <option>Google</option>
+            <option>Giới thiệu</option>
+            <option>Đi ngang qua</option>
+
+            {/* Auto load từ DB */}
             {sources.map((s, i) => (
               <option key={i}>{s}</option>
             ))}
@@ -87,7 +109,7 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* Bảng khách hàng */}
       <div style={tableCard}>
         <table style={table}>
           <thead>
@@ -136,13 +158,18 @@ export default function KhachHangPage() {
   );
 }
 
-/* ==== STYLE GIỮ NGUYÊN 100% ==== */
+/* ==== STYLE GIỮ NGUYÊN ==== */
 
 const pageWrapper = { padding: 24 };
 
-const title = { fontSize: 28, fontWeight: 700, marginBottom: 4 };
+const title = {
+  fontSize: 28,
+  fontWeight: 700,
+  margin: 0,
+  marginBottom: 4,
+};
 
-const subtitle = { color: "#6b7280", fontSize: 14 };
+const subtitle = { margin: 0, color: "#6b7280", fontSize: 14 };
 
 const headerRow = {
   display: "flex",
@@ -161,7 +188,6 @@ const primaryButton = {
   color: "#111827",
   fontWeight: 600,
   cursor: "pointer",
-  boxShadow: "0 10px 30px rgba(245,196,81,0.35)",
 };
 
 const outlineButton = {
@@ -172,7 +198,12 @@ const outlineButton = {
   cursor: "pointer",
 };
 
-const filterBar = { display: "flex", gap: 16, marginBottom: 16 };
+const filterBar = {
+  display: "flex",
+  alignItems: "center",
+  gap: 16,
+  marginBottom: 16,
+};
 
 const filterRight = { display: "flex", gap: 8 };
 
@@ -192,8 +223,8 @@ const filterSelect = {
 
 const tableCard = {
   background: "#fff",
-  padding: 20,
   borderRadius: 20,
+  padding: 20,
   boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
 };
 
