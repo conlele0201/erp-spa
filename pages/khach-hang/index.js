@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabaseClient";
 
-// Danh sách cố định (giống bản mock ban đầu)
 const FIXED_TAGS = ["VIP", "Khách mới", "Khách quen", "Khách tiềm năng"];
 
 const FIXED_SOURCES = [
@@ -19,65 +18,58 @@ export default function KhachHangPage() {
   const router = useRouter();
 
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]); // ← NEW
+  const [search, setSearch] = useState(""); // ← NEW
+
   const [tags, setTags] = useState([]);
   const [sources, setSources] = useState([]);
 
-  // Load dữ liệu từ Supabase
   useEffect(() => {
     loadData();
   }, []);
 
   async function loadData() {
-    // Nếu supabase chưa khởi tạo (env thiếu) thì KHÔNG gọi .from để tránh crash
-    if (!supabase) {
-      console.warn(
-        "Supabase client chưa được khởi tạo – kiểm tra lại biến môi trường."
-      );
-      setCustomers([]);
-      setTags([]);
-      setSources([]);
+    if (!supabase) return;
+
+    const { data, error } = await supabase.from("customers").select("*");
+
+    if (error) {
+      console.error(error);
       return;
     }
 
-    try {
-      const { data, error } = await supabase.from("customers").select("*");
+    const rows = data || [];
 
-      if (error) {
-        console.error("Lỗi load customers:", error.message);
-        setCustomers([]);
-        setTags([]);
-        setSources([]);
-        return;
-      }
+    setCustomers(rows);
+    setFilteredCustomers(rows); // ← NEW default table
 
-      const rows = data || [];
-      setCustomers(rows);
+    const dynamicTags = [
+      ...new Set(rows.map((c) => c.tag).filter((x) => !!x)),
+    ];
+    const dynamicSources = [
+      ...new Set(rows.map((c) => c.source).filter((x) => !!x)),
+    ];
 
-      // Lấy tag & nguồn khách từ DB (loại bỏ null / rỗng)
-      const dynamicTags = [
-        ...new Set(rows.map((c) => c.tag).filter((x) => !!x)),
-      ];
-      const dynamicSources = [
-        ...new Set(rows.map((c) => c.source).filter((x) => !!x)),
-      ];
-
-      setTags(dynamicTags);
-      setSources(dynamicSources);
-    } catch (e) {
-      console.error("Exception loadData:", e);
-      setCustomers([]);
-      setTags([]);
-      setSources([]);
-    }
+    setTags(dynamicTags);
+    setSources(dynamicSources);
   }
 
-  const formatCurrency = (value) =>
-    Number(value || 0).toLocaleString("vi-VN", {
-      style: "currency",
-      currency: "VND",
+  // ⭐ SEARCH LOGIC — Simple & hiệu quả
+  function handleSearch(value) {
+    setSearch(value);
+
+    const keyword = value.toLowerCase().trim();
+
+    const result = customers.filter((c) => {
+      return (
+        c.name?.toLowerCase().includes(keyword) ||
+        c.phone?.toLowerCase().includes(keyword)
+      );
     });
 
-  // Hợp nhất danh sách cố định + từ DB, không trùng
+    setFilteredCustomers(result);
+  }
+
   const allTags = [
     ...FIXED_TAGS,
     ...tags.filter((t) => !FIXED_TAGS.includes(t)),
@@ -88,9 +80,14 @@ export default function KhachHangPage() {
     ...sources.filter((s) => !FIXED_SOURCES.includes(s)),
   ];
 
+  const formatCurrency = (value) =>
+    Number(value || 0).toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    });
+
   return (
     <div style={pageWrapper}>
-      {/* Header */}
       <div style={headerRow}>
         <div>
           <h1 style={title}>Khách hàng</h1>
@@ -100,17 +97,12 @@ export default function KhachHangPage() {
         </div>
 
         <div style={headerActions}>
-          <button
-            style={outlineButton}
-            type="button"
-            onClick={() => loadData()}
-          >
+          <button style={outlineButton} onClick={() => loadData()}>
             Làm mới
           </button>
 
           <button
             style={primaryButton}
-            type="button"
             onClick={() => router.push("/khach-hang/them")}
           >
             + Thêm khách hàng
@@ -118,17 +110,18 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* Thanh filter */}
+      {/* SEARCH + FILTER */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
           <input
-            placeholder="Tìm theo tên, số điện thoại..."
+            placeholder="Tìm theo tên, số điện thoại…"
             style={searchInput}
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)} // ← NEW
           />
         </div>
 
         <div style={filterRight}>
-          {/* Dropdown TAG */}
           <select style={filterSelect}>
             <option>Tất cả tag</option>
             {allTags.map((t, i) => (
@@ -136,7 +129,6 @@ export default function KhachHangPage() {
             ))}
           </select>
 
-          {/* Dropdown NGUỒN KHÁCH */}
           <select style={filterSelect}>
             <option>Tất cả nguồn khách</option>
             {allSources.map((s, i) => (
@@ -146,7 +138,7 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* Bảng khách hàng */}
+      {/* TABLE */}
       <div style={tableCard}>
         <table style={table}>
           <thead>
@@ -164,7 +156,7 @@ export default function KhachHangPage() {
           </thead>
 
           <tbody>
-            {customers.map((c) => (
+            {filteredCustomers.map((c) => (
               <tr key={c.id} style={tr}>
                 <td style={tdName}>
                   <div style={{ fontWeight: 600 }}>{c.name}</div>
@@ -179,9 +171,9 @@ export default function KhachHangPage() {
                 </td>
 
                 <td style={td}>{formatCurrency(c.totalSpent)}</td>
-                <td style={td}>{c.visits || 0}</td>
+                <td style={td}>{c.visits}</td>
                 <td style={td}>{c.lastVisit || "-"}</td>
-                <td style={td}>{c.source || "-"}</td>
+                <td style={td}>{c.source}</td>
 
                 <td style={td}>
                   <button style={secondaryButton}>Xem</button>
@@ -195,7 +187,7 @@ export default function KhachHangPage() {
   );
 }
 
-/* ===== STYLE OBJECTS ===== */
+/* ==== STYLE giữ nguyên 100% ==== */
 
 const pageWrapper = { padding: 24 };
 
