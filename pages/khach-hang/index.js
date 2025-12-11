@@ -4,81 +4,96 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabaseClient";
 
-const FIXED_TAGS = ["VIP", "Khách mới", "Khách quen", "Khách tiềm năng"];
-
-const FIXED_SOURCES = [
-  "Facebook",
-  "TikTok",
-  "Zalo",
-  "Đi ngang qua",
-  "Giới thiệu",
-];
-
 export default function KhachHangPage() {
   const router = useRouter();
 
   const [customers, setCustomers] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]); // ← NEW
-  const [search, setSearch] = useState(""); // ← NEW
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
 
   const [tags, setTags] = useState([]);
   const [sources, setSources] = useState([]);
 
+  const [searchText, setSearchText] = useState("");
+  const [tagFilter, setTagFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
+
+  // Load dữ liệu từ DB
   useEffect(() => {
     loadData();
   }, []);
 
   async function loadData() {
-    if (!supabase) return;
-
-    const { data, error } = await supabase.from("customers").select("*");
+    const { data, error } = await supabase
+      .from("customers")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error(error);
       return;
     }
 
-    const rows = data || [];
+    setCustomers(data);
+    setFilteredCustomers(data);
 
-    setCustomers(rows);
-    setFilteredCustomers(rows); // ← NEW default table
+    // lấy tag duy nhất
+    setTags([...new Set(data.map((c) => c.tag).filter(Boolean))]);
 
-    const dynamicTags = [
-      ...new Set(rows.map((c) => c.tag).filter((x) => !!x)),
-    ];
-    const dynamicSources = [
-      ...new Set(rows.map((c) => c.source).filter((x) => !!x)),
-    ];
-
-    setTags(dynamicTags);
-    setSources(dynamicSources);
+    // lấy nguồn duy nhất
+    setSources([...new Set(data.map((c) => c.source).filter(Boolean))]);
   }
 
-  // ⭐ SEARCH LOGIC — Simple & hiệu quả
-  function handleSearch(value) {
-    setSearch(value);
+  // APPLY FILTER
+  function applyFilter(list, search = searchText, tag = tagFilter, source = sourceFilter) {
+    let result = [...list];
 
-    const keyword = value.toLowerCase().trim();
-
-    const result = customers.filter((c) => {
-      return (
-        c.name?.toLowerCase().includes(keyword) ||
-        c.phone?.toLowerCase().includes(keyword)
+    // tìm theo tên / số điện thoại
+    if (search.trim() !== "") {
+      const kw = search.trim().toLowerCase();
+      result = result.filter(
+        (c) =>
+          (c.name && c.name.toLowerCase().includes(kw)) ||
+          (c.phone && c.phone.toLowerCase().includes(kw))
       );
-    });
+    }
+
+    if (tag !== "all") result = result.filter((c) => c.tag === tag);
+    if (source !== "all") result = result.filter((c) => c.source === source);
 
     setFilteredCustomers(result);
   }
 
-  const allTags = [
-    ...FIXED_TAGS,
-    ...tags.filter((t) => !FIXED_TAGS.includes(t)),
-  ];
+  // handler search
+  function handleSearchChange(e) {
+    const v = e.target.value;
+    setSearchText(v);
+    applyFilter(customers, v, tagFilter, sourceFilter);
+  }
 
-  const allSources = [
-    ...FIXED_SOURCES,
-    ...sources.filter((s) => !FIXED_SOURCES.includes(s)),
-  ];
+  function handleTagChange(e) {
+    const v = e.target.value;
+    setTagFilter(v);
+    applyFilter(customers, searchText, v, sourceFilter);
+  }
+
+  function handleSourceChange(e) {
+    const v = e.target.value;
+    setSourceFilter(v);
+    applyFilter(customers, searchText, tagFilter, v);
+  }
+
+  // XÓA KHÁCH
+  async function handleDelete(id) {
+    if (!window.confirm("Anh chắc muốn xóa khách này?")) return;
+
+    const { error } = await supabase.from("customers").delete().eq("id", id);
+    if (error) {
+      alert("Xóa thất bại");
+      return;
+    }
+
+    loadData();
+  }
 
   const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("vi-VN", {
@@ -86,8 +101,10 @@ export default function KhachHangPage() {
       currency: "VND",
     });
 
+  // ===== UI =====
   return (
     <div style={pageWrapper}>
+      {/* HEADER */}
       <div style={headerRow}>
         <div>
           <h1 style={title}>Khách hàng</h1>
@@ -97,7 +114,15 @@ export default function KhachHangPage() {
         </div>
 
         <div style={headerActions}>
-          <button style={outlineButton} onClick={() => loadData()}>
+          <button
+            style={outlineButton}
+            onClick={() => {
+              setSearchText("");
+              setTagFilter("all");
+              setSourceFilter("all");
+              loadData();
+            }}
+          >
             Làm mới
           </button>
 
@@ -110,29 +135,33 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* SEARCH + FILTER */}
+      {/* FILTER BAR */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
           <input
-            placeholder="Tìm theo tên, số điện thoại…"
+            value={searchText}
+            onChange={handleSearchChange}
+            placeholder="Tìm theo tên, số điện thoại..."
             style={searchInput}
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)} // ← NEW
           />
         </div>
 
         <div style={filterRight}>
-          <select style={filterSelect}>
-            <option>Tất cả tag</option>
-            {allTags.map((t, i) => (
-              <option key={i}>{t}</option>
+          <select style={filterSelect} value={tagFilter} onChange={handleTagChange}>
+            <option value="all">Tất cả tag</option>
+            {tags.map((t) => (
+              <option key={t}>{t}</option>
             ))}
           </select>
 
-          <select style={filterSelect}>
-            <option>Tất cả nguồn khách</option>
-            {allSources.map((s, i) => (
-              <option key={i}>{s}</option>
+          <select
+            style={filterSelect}
+            value={sourceFilter}
+            onChange={handleSourceChange}
+          >
+            <option value="all">Tất cả nguồn khách</option>
+            {sources.map((s) => (
+              <option key={s}>{s}</option>
             ))}
           </select>
         </div>
@@ -159,10 +188,9 @@ export default function KhachHangPage() {
             {filteredCustomers.map((c) => (
               <tr key={c.id} style={tr}>
                 <td style={tdName}>
-                  <div style={{ fontWeight: 600 }}>{c.name}</div>
+                  <b>{c.name}</b>
                   <div style={tdSubText}>Sinh nhật: {c.birthday}</div>
                 </td>
-
                 <td style={td}>{c.phone}</td>
                 <td style={td}>{c.gender}</td>
 
@@ -171,12 +199,23 @@ export default function KhachHangPage() {
                 </td>
 
                 <td style={td}>{formatCurrency(c.totalSpent)}</td>
-                <td style={td}>{c.visits}</td>
+                <td style={td}>{c.visits || 0}</td>
                 <td style={td}>{c.lastVisit || "-"}</td>
-                <td style={td}>{c.source}</td>
+                <td style={td}>{c.source || "-"}</td>
 
                 <td style={td}>
-                  <button style={secondaryButton}>Xem</button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      style={secondaryButton}
+                      onClick={() => alert("Trang chi tiết / sửa sẽ làm bước sau")}
+                    >
+                      Xem
+                    </button>
+
+                    <button style={dangerButton} onClick={() => handleDelete(c.id)}>
+                      Xóa
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -187,18 +226,9 @@ export default function KhachHangPage() {
   );
 }
 
-/* ==== STYLE giữ nguyên 100% ==== */
+/* ===== STYLES ===== */
 
 const pageWrapper = { padding: 24 };
-
-const title = {
-  fontSize: 28,
-  fontWeight: 700,
-  margin: 0,
-  marginBottom: 4,
-};
-
-const subtitle = { margin: 0, color: "#6b7280", fontSize: 14 };
 
 const headerRow = {
   display: "flex",
@@ -207,6 +237,9 @@ const headerRow = {
   marginBottom: 20,
 };
 
+const title = { fontSize: 28, fontWeight: 700, margin: 0 };
+const subtitle = { color: "#6b7280", fontSize: 14, margin: 0 };
+
 const headerActions = { display: "flex", gap: 8 };
 
 const primaryButton = {
@@ -214,30 +247,33 @@ const primaryButton = {
   borderRadius: 999,
   border: "none",
   background: "#f5c451",
-  color: "#111827",
+  color: "#111",
   fontWeight: 600,
-  fontSize: 14,
   cursor: "pointer",
-  boxShadow: "0 10px 30px rgba(245,196,81,0.35)",
 };
 
 const outlineButton = {
   padding: "10px 18px",
   borderRadius: 999,
-  border: "1px solid #e5e7eb",
-  background: "#ffffff",
-  color: "#374151",
-  fontWeight: 500,
-  fontSize: 14,
+  border: "1px solid #ddd",
+  background: "#fff",
   cursor: "pointer",
 };
 
 const secondaryButton = {
   padding: "6px 14px",
   borderRadius: 999,
-  border: "1px solid #e5e7eb",
-  background: "#ffffff",
-  fontSize: 13,
+  border: "1px solid #ddd",
+  background: "#fff",
+  cursor: "pointer",
+};
+
+const dangerButton = {
+  padding: "6px 14px",
+  borderRadius: 999,
+  border: "1px solid #fca5a5",
+  background: "#fee2e2",
+  color: "#b91c1c",
   cursor: "pointer",
 };
 
@@ -254,70 +290,53 @@ const searchInput = {
   width: "100%",
   padding: "10px 14px",
   borderRadius: 999,
-  border: "1px solid #e5e7eb",
-  outline: "none",
-  fontSize: 14,
+  border: "1px solid #ddd",
   background: "#f9fafb",
 };
 
 const filterSelect = {
   padding: "9px 14px",
   borderRadius: 999,
-  border: "1px solid #e5e7eb",
-  fontSize: 14,
-  background: "#ffffff",
+  border: "1px solid #ddd",
 };
 
 const tableCard = {
-  background: "#ffffff",
+  background: "#fff",
   borderRadius: 20,
   padding: 20,
-  boxShadow: "0 18px 40px rgba(15,23,42,0.06)",
+  boxShadow: "0 8px 30px rgba(0,0,0,0.05)",
 };
 
-const table = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: 14,
-};
+const table = { width: "100%", borderCollapse: "collapse" };
 
 const th = {
   textAlign: "left",
   padding: "10px 12px",
-  fontWeight: 600,
-  borderBottom: "1px solid #f3f4f6",
   background: "#f9fafb",
+  borderBottom: "1px solid #eee",
 };
 
 const tr = { borderBottom: "1px solid #f3f4f6" };
-
-const td = { padding: "10px 12px", verticalAlign: "middle" };
+const td = { padding: "10px 12px" };
 
 const tdName = { ...td };
+const tdSubText = { fontSize: 12, color: "#999" };
 
-const tdSubText = {
-  fontSize: 12,
-  color: "#9ca3af",
-  marginTop: 2,
-};
-
-/* Badge theo tag */
 function getTagStyle(tag) {
   const base = {
     padding: "4px 10px",
     borderRadius: 999,
     fontSize: 12,
     fontWeight: 600,
-    display: "inline-block",
   };
 
   switch (tag) {
     case "VIP":
-      return { ...base, background: "rgba(245,196,81,0.18)", color: "#92400e" };
+      return { ...base, background: "#fef3c7", color: "#92400e" };
     case "Khách mới":
-      return { ...base, background: "rgba(59,130,246,0.08)", color: "#1d4ed8" };
+      return { ...base, background: "#dbeafe", color: "#1e40af" };
     case "Khách quen":
-      return { ...base, background: "rgba(16,185,129,0.10)", color: "#047857" };
+      return { ...base, background: "#d1fae5", color: "#065f46" };
     default:
       return { ...base, background: "#f3f4f6", color: "#4b5563" };
   }
