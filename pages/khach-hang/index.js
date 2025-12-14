@@ -26,9 +26,9 @@ export default function KhachHangPage() {
         phone,
         gender,
         birthday,
-        totalSpent,
+        total_spent,
         visits,
-        lastVisit,
+        last_visit,
         customer_tags ( id, name ),
         customer_sources ( id, name )
       `)
@@ -40,25 +40,21 @@ export default function KhachHangPage() {
   }
 
   async function loadTags() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("customer_tags")
       .select("id, name")
       .order("name");
 
-    if (!error && data) {
-      setTags(data);
-    }
+    setTags(data || []);
   }
 
   async function loadSources() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("customer_sources")
       .select("id, name")
       .order("name");
 
-    if (!error && data) {
-      setSources(data);
-    }
+    setSources(data || []);
   }
 
   /* ================= UI ================= */
@@ -93,7 +89,7 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* Filter bar */}
+      {/* Filter bar (chưa xử lý logic) */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
           <input
@@ -103,7 +99,6 @@ export default function KhachHangPage() {
         </div>
 
         <div style={filterRight}>
-          {/* TAG dropdown */}
           <select style={filterSelect}>
             <option value="">Tất cả tag</option>
             {tags.map((t) => (
@@ -113,7 +108,6 @@ export default function KhachHangPage() {
             ))}
           </select>
 
-          {/* SOURCE dropdown */}
           <select style={filterSelect}>
             <option value="">Tất cả nguồn khách</option>
             {sources.map((s) => (
@@ -156,15 +150,21 @@ export default function KhachHangPage() {
                 <td style={td}>{c.gender}</td>
 
                 <td style={td}>
-                  <span style={getTagStyle(c.customer_tags?.name)}>
-                    {c.customer_tags?.name || "-"}
-                  </span>
+                  {c.customer_tags ? (
+                    <span style={getTagStyle()}>
+                      {c.customer_tags.name}
+                    </span>
+                  ) : (
+                    "-"
+                  )}
                 </td>
 
-                <td style={td}>{formatCurrency(c.totalSpent)}</td>
+                <td style={td}>{formatCurrency(c.total_spent)}</td>
                 <td style={td}>{c.visits || 0}</td>
-                <td style={td}>{c.lastVisit || "-"}</td>
-                <td style={td}>{c.customer_sources?.name || "-"}</td>
+                <td style={td}>{c.last_visit || "-"}</td>
+                <td style={td}>
+                  {c.customer_sources?.name || "-"}
+                </td>
 
                 <td style={td}>
                   <button style={secondaryButton}>Xem</button>
