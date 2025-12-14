@@ -15,45 +15,53 @@ export default function KhachHangPage() {
     loadSources();
   }, []);
 
-  /* ================= LOAD DATA ================= */
+  /* ================= DATA LOAD ================= */
 
   async function loadCustomers() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("customers")
       .select(`
         id,
         name,
         phone,
         gender,
+        birthday,
         totalSpent,
         visits,
         lastVisit,
-        birthday,
-        customer_tags(name),
-        customer_sources(name)
+        customer_tags ( id, name ),
+        customer_sources ( id, name )
       `)
       .order("id", { ascending: false });
 
-    if (data) setCustomers(data);
+    if (!error && data) {
+      setCustomers(data);
+    }
   }
 
   async function loadTags() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("customer_tags")
       .select("id, name")
       .order("name");
 
-    if (data) setTags(data);
+    if (!error && data) {
+      setTags(data);
+    }
   }
 
   async function loadSources() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("customer_sources")
       .select("id, name")
       .order("name");
 
-    if (data) setSources(data);
+    if (!error && data) {
+      setSources(data);
+    }
   }
+
+  /* ================= UI ================= */
 
   const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("vi-VN", {
@@ -61,11 +69,9 @@ export default function KhachHangPage() {
       currency: "VND",
     });
 
-  /* ================= RENDER ================= */
-
   return (
     <div style={pageWrapper}>
-      {/* HEADER */}
+      {/* Header */}
       <div style={headerRow}>
         <div>
           <h1 style={title}>Khách hàng</h1>
@@ -87,39 +93,45 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* FILTER BAR */}
+      {/* Filter bar */}
       <div style={filterBar}>
-        <input
-          placeholder="Tìm theo tên, số điện thoại..."
-          style={searchInput}
-        />
+        <div style={{ flex: 1 }}>
+          <input
+            placeholder="Tìm theo tên, số điện thoại..."
+            style={searchInput}
+          />
+        </div>
 
-        <select style={filterSelect}>
-          <option value="">Tất cả tag</option>
-          {tags.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
+        <div style={filterRight}>
+          {/* TAG dropdown */}
+          <select style={filterSelect}>
+            <option value="">Tất cả tag</option>
+            {tags.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
 
-        <select style={filterSelect}>
-          <option value="">Tất cả nguồn khách</option>
-          {sources.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+          {/* SOURCE dropdown */}
+          <select style={filterSelect}>
+            <option value="">Tất cả nguồn khách</option>
+            {sources.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* TABLE */}
+      {/* Table */}
       <div style={tableCard}>
         <table style={table}>
           <thead>
             <tr>
               <th style={th}>Tên khách</th>
-              <th style={th}>SĐT</th>
+              <th style={th}>Số điện thoại</th>
               <th style={th}>Giới tính</th>
               <th style={th}>Tag</th>
               <th style={th}>Tổng chi tiêu</th>
@@ -129,26 +141,34 @@ export default function KhachHangPage() {
               <th style={th}>Thao tác</th>
             </tr>
           </thead>
+
           <tbody>
             {customers.map((c) => (
               <tr key={c.id} style={tr}>
                 <td style={tdName}>
-                  <strong>{c.name}</strong>
-                  <div style={tdSubText}>Sinh nhật: {c.birthday || "-"}</div>
+                  <div style={{ fontWeight: 600 }}>{c.name}</div>
+                  <div style={tdSubText}>
+                    Sinh nhật: {c.birthday || "-"}
+                  </div>
                 </td>
+
                 <td style={td}>{c.phone}</td>
                 <td style={td}>{c.gender}</td>
+
                 <td style={td}>
                   <span style={getTagStyle(c.customer_tags?.name)}>
                     {c.customer_tags?.name || "-"}
                   </span>
                 </td>
+
                 <td style={td}>{formatCurrency(c.totalSpent)}</td>
                 <td style={td}>{c.visits || 0}</td>
                 <td style={td}>{c.lastVisit || "-"}</td>
                 <td style={td}>{c.customer_sources?.name || "-"}</td>
+
                 <td style={td}>
                   <button style={secondaryButton}>Xem</button>
+                  <button style={dangerButton}>Xóa</button>
                 </td>
               </tr>
             ))}
@@ -162,12 +182,13 @@ export default function KhachHangPage() {
 /* ================= STYLES (GIỮ NGUYÊN) ================= */
 
 const pageWrapper = { padding: 24 };
-const title = { fontSize: 28, fontWeight: 700, marginBottom: 4 };
-const subtitle = { color: "#6b7280", fontSize: 14 };
+const title = { fontSize: 28, fontWeight: 700, margin: 0, marginBottom: 4 };
+const subtitle = { margin: 0, color: "#6b7280", fontSize: 14 };
 
 const headerRow = {
   display: "flex",
   justifyContent: "space-between",
+  alignItems: "center",
   marginBottom: 20,
 };
 
@@ -176,8 +197,8 @@ const headerActions = { display: "flex", gap: 8 };
 const primaryButton = {
   padding: "10px 18px",
   borderRadius: 999,
-  background: "#f5c451",
   border: "none",
+  background: "#f5c451",
   fontWeight: 600,
   cursor: "pointer",
 };
@@ -187,16 +208,36 @@ const outlineButton = {
   borderRadius: 999,
   border: "1px solid #e5e7eb",
   background: "#fff",
+  cursor: "pointer",
+};
+
+const secondaryButton = {
+  padding: "6px 14px",
+  borderRadius: 999,
+  border: "1px solid #e5e7eb",
+  background: "#fff",
+  marginRight: 6,
+};
+
+const dangerButton = {
+  padding: "6px 14px",
+  borderRadius: 999,
+  border: "1px solid #fecaca",
+  background: "#fee2e2",
+  color: "#b91c1c",
 };
 
 const filterBar = {
   display: "flex",
-  gap: 12,
+  alignItems: "center",
+  gap: 16,
   marginBottom: 16,
 };
 
+const filterRight = { display: "flex", gap: 8 };
+
 const searchInput = {
-  flex: 1,
+  width: "100%",
   padding: "10px 14px",
   borderRadius: 999,
   border: "1px solid #e5e7eb",
@@ -216,23 +257,26 @@ const tableCard = {
 };
 
 const table = { width: "100%", borderCollapse: "collapse" };
-const th = { padding: "10px 12px", borderBottom: "1px solid #eee" };
+
+const th = {
+  textAlign: "left",
+  padding: "10px 12px",
+  borderBottom: "1px solid #f3f4f6",
+  background: "#f9fafb",
+};
+
 const tr = { borderBottom: "1px solid #f3f4f6" };
 const td = { padding: "10px 12px" };
 const tdName = { ...td };
 const tdSubText = { fontSize: 12, color: "#9ca3af" };
 
-const secondaryButton = {
-  padding: "6px 14px",
-  borderRadius: 999,
-  border: "1px solid #e5e7eb",
-};
-
-function getTagStyle(tag) {
+function getTagStyle() {
   return {
     padding: "4px 10px",
     borderRadius: 999,
     fontSize: 12,
-    background: "#f3f4f6",
+    background: "rgba(245,196,81,0.18)",
+    color: "#92400e",
+    fontWeight: 600,
   };
 }
