@@ -6,8 +6,12 @@ export default function KhachHangPage() {
   const router = useRouter();
 
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+
   const [tags, setTags] = useState([]);
   const [sources, setSources] = useState([]);
+
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     loadCustomers();
@@ -18,7 +22,7 @@ export default function KhachHangPage() {
   /* ================= DATA LOAD ================= */
 
   async function loadCustomers() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("customers")
       .select(`
         id,
@@ -34,8 +38,9 @@ export default function KhachHangPage() {
       `)
       .order("id", { ascending: false });
 
-    if (!error && data) {
+    if (data) {
       setCustomers(data);
+      setFilteredCustomers(data);
     }
   }
 
@@ -55,6 +60,27 @@ export default function KhachHangPage() {
       .order("name");
 
     setSources(data || []);
+  }
+
+  /* ================= SEARCH ================= */
+
+  function handleSearch(value) {
+    setSearchText(value);
+
+    if (!value) {
+      setFilteredCustomers(customers);
+      return;
+    }
+
+    const keyword = value.toLowerCase();
+
+    const result = customers.filter(
+      (c) =>
+        c.name?.toLowerCase().includes(keyword) ||
+        c.phone?.includes(keyword)
+    );
+
+    setFilteredCustomers(result);
   }
 
   /* ================= UI ================= */
@@ -89,12 +115,14 @@ export default function KhachHangPage() {
         </div>
       </div>
 
-      {/* Filter bar (chưa xử lý logic) */}
+      {/* Filter bar */}
       <div style={filterBar}>
         <div style={{ flex: 1 }}>
           <input
             placeholder="Tìm theo tên, số điện thoại..."
             style={searchInput}
+            value={searchText}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
 
@@ -102,18 +130,14 @@ export default function KhachHangPage() {
           <select style={filterSelect}>
             <option value="">Tất cả tag</option>
             {tags.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
+              <option key={t.id}>{t.name}</option>
             ))}
           </select>
 
           <select style={filterSelect}>
             <option value="">Tất cả nguồn khách</option>
             {sources.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
+              <option key={s.id}>{s.name}</option>
             ))}
           </select>
         </div>
@@ -137,7 +161,7 @@ export default function KhachHangPage() {
           </thead>
 
           <tbody>
-            {customers.map((c) => (
+            {filteredCustomers.map((c) => (
               <tr key={c.id} style={tr}>
                 <td style={tdName}>
                   <div style={{ fontWeight: 600 }}>{c.name}</div>
@@ -162,12 +186,12 @@ export default function KhachHangPage() {
                 <td style={td}>{formatCurrency(c.total_spent)}</td>
                 <td style={td}>{c.visits || 0}</td>
                 <td style={td}>{c.last_visit || "-"}</td>
-                <td style={td}>
-                  {c.customer_sources?.name || "-"}
-                </td>
+                <td style={td}>{c.customer_sources?.name || "-"}</td>
 
-                <td style={td}>
+                {/* THAO TÁC – 3 NÚT 1 HÀNG */}
+                <td style={{ ...td, whiteSpace: "nowrap" }}>
                   <button style={secondaryButton}>Xem</button>
+                  <button style={secondaryButton}>Sửa</button>
                   <button style={dangerButton}>Xóa</button>
                 </td>
               </tr>
